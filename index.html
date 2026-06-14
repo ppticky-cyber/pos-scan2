@@ -1,487 +1,454 @@
-
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>POS ສະແກນ & ຂາຍ</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--font-sans);background:var(--color-background-secondary)}
-.app{max-width:420px;margin:0 auto;padding:.75rem}
-
-/* header */
-.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
-.hdr-left{display:flex;align-items:center;gap:8px}
-.hdr h2{font-size:16px;font-weight:600;color:var(--color-text-primary)}
-.hdr-right{display:flex;gap:6px}
-.icon-btn{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 10px;cursor:pointer;font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px}
-.icon-btn:hover{background:var(--color-background-secondary)}
-.icon-btn.active{background:var(--color-background-danger);color:var(--color-text-danger);border-color:var(--color-border-danger)}
-
-/* camera */
-.cam-wrap{position:relative;width:100%;background:#000;border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:.75rem;display:none}
-.cam-wrap video{width:100%;display:block;max-height:260px;object-fit:cover}
-.scan-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
-.scan-box{width:200px;height:120px;border:2.5px solid #1D9E75;border-radius:8px;position:relative}
-.scan-box::before{content:'';position:absolute;left:5%;right:5%;top:50%;height:2px;background:linear-gradient(90deg,transparent,#1D9E75,transparent);animation:sweep 1.8s ease-in-out infinite}
-@keyframes sweep{0%,100%{top:15%}50%{top:82%}}
-.cam-hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,0.85);text-shadow:0 1px 3px rgba(0,0,0,.5)}
-
-/* scan start screen */
-.start-screen{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:2rem 1.5rem;text-align:center;margin-bottom:.75rem}
-.start-icon{font-size:48px;margin-bottom:.75rem}
-.start-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:.5rem}
-.start-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
-.scan-big-btn{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--color-background-success);color:var(--color-text-success);border:1.5px solid var(--color-border-success);border-radius:var(--border-radius-lg);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-.scan-big-btn:hover{opacity:.88}
-
-/* manual input */
-.manual-row{display:flex;gap:6px;margin-bottom:.75rem}
-.manual-row input{flex:1;font-size:14px;letter-spacing:.5px;text-transform:uppercase;border-radius:var(--border-radius-md)}
-.manual-row button{white-space:nowrap;font-size:13px}
-
-/* modal overlay */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:flex-end;justify-content:center}
-.modal-bg.show{display:flex}
-.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg) var(--border-radius-lg) 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:420px;animation:slideup .25s ease}
-@keyframes slideup{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-sku{font-size:11px;font-family:var(--font-mono);color:var(--color-text-secondary);margin-bottom:4px}
-.modal-name{font-size:15px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px}
-.modal-meta{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
-.price-big{font-size:36px;font-weight:700;color:var(--color-text-success);text-align:center;margin-bottom:.25rem}
-.price-sub{font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:1.25rem}
-.stock-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:20px;margin-bottom:1.25rem}
-.stock-pill.ok{background:var(--color-background-success);color:var(--color-text-success)}
-.stock-pill.low{background:var(--color-background-warning);color:var(--color-text-warning)}
-.stock-pill.out{background:var(--color-background-danger);color:var(--color-text-danger)}
-.qty-sel{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:1.25rem}
-.qty-sel label{font-size:13px;color:var(--color-text-secondary)}
-.qty-sel .qbtn{width:32px;height:32px;border-radius:50%;font-size:18px;font-weight:600;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-text-primary)}
-.qty-sel .qval{font-size:20px;font-weight:700;color:var(--color-text-primary);min-width:36px;text-align:center}
-.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn-ok{padding:14px;font-size:15px;font-weight:700;background:var(--color-background-success);color:var(--color-text-success);border:1.5px solid var(--color-border-success);border-radius:var(--border-radius-lg);cursor:pointer}
-.btn-ok:hover{opacity:.88}
-.btn-ok:disabled{opacity:.4;cursor:not-allowed}
-.btn-cancel{padding:14px;font-size:15px;font-weight:700;background:var(--color-background-danger);color:var(--color-text-danger);border:1.5px solid var(--color-border-danger);border-radius:var(--border-radius-lg);cursor:pointer}
-.btn-cancel:hover{opacity:.88}
-
-/* toast */
-.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:var(--border-radius-lg);font-size:13px;font-weight:500;z-index:200;display:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.15)}
-.toast.ok-t{background:var(--color-background-success);color:var(--color-text-success);border:1px solid var(--color-border-success)}
-.toast.err-t{background:var(--color-background-danger);color:var(--color-text-danger);border:1px solid var(--color-border-danger)}
-
-/* sold log */
-.log-wrap{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:.75rem}
-.log-wrap h3{font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;display:flex;justify-content:space-between}
-.log-wrap h3 button{font-size:11px;color:var(--color-text-danger);background:none;border:none;cursor:pointer}
-.log-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
-.log-item:last-child{border-bottom:none}
-.log-sku{font-family:var(--font-mono);font-size:11px;color:var(--color-text-primary)}
-.log-detail{font-size:11px;color:var(--color-text-secondary)}
-.log-amt{font-size:13px;font-weight:600;color:var(--color-text-success)}
-.total-bar{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:.75rem 1rem;display:flex;justify-content:space-between;align-items:center}
-.total-bar .tl{font-size:12px;color:var(--color-text-secondary)}
-.total-bar .tv{font-size:18px;font-weight:700;color:var(--color-text-primary)}
+body{font-family:system-ui,sans-serif;background:#f5f5f5;color:#1a1a1a}
+.app{max-width:430px;margin:0 auto;padding:.75rem}
+h2{font-size:17px;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
+.cam-btn{width:100%;padding:16px;font-size:16px;font-weight:700;background:#1D9E75;color:#fff;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:.75rem}
+.cam-btn.on{background:#e53935}
+#vw{display:none;position:relative;width:100%;background:#000;border-radius:14px;overflow:hidden;margin-bottom:.75rem}
+#vw video{width:100%;display:block;max-height:260px;object-fit:cover}
+.sbox{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:120px;border:2.5px solid #1D9E75;border-radius:8px}
+.sline{position:absolute;left:5%;right:5%;height:2px;background:#1D9E75;animation:sw 1.8s ease-in-out infinite}
+@keyframes sw{0%,100%{top:15%}50%{top:82%}}
+.hint{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.9)}
+.manual{display:flex;gap:6px;margin-bottom:.75rem}
+.manual input{flex:1;font-size:14px;text-transform:uppercase;padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#fff}
+.manual button{padding:10px 14px;background:#444;color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer}
+/* tabs */
+.tabs{display:flex;gap:6px;margin-bottom:.75rem}
+.tab{flex:1;padding:8px;font-size:13px;font-weight:600;border:1px solid #ddd;border-radius:10px;background:#fff;cursor:pointer;color:#888}
+.tab.active{background:#1D9E75;color:#fff;border-color:#1D9E75}
+/* log */
+.log-box{background:#fff;border-radius:14px;padding:.75rem;margin-bottom:.75rem}
+.log-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.log-hdr span{font-size:13px;font-weight:600;color:#444}
+.log-hdr .export-btn{padding:5px 10px;font-size:12px;background:#1D9E75;color:#fff;border:none;border-radius:8px;cursor:pointer}
+.log-hdr .clear-btn{padding:5px 10px;font-size:12px;background:#fde8e8;color:#e53935;border:none;border-radius:8px;cursor:pointer}
+.li{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f0f0f0}
+.li:last-child{border:none}
+.li-l .li-sku{font-size:11px;font-family:monospace;font-weight:600;color:#1a1a1a}
+.li-l .li-sub{font-size:10px;color:#888;margin-top:1px}
+.li-r{font-size:13px;font-weight:700;color:#1D9E75;white-space:nowrap;margin-left:8px}
+.empty{text-align:center;color:#bbb;font-size:13px;padding:20px 0}
+/* stock tab */
+.stk-box{background:#fff;border-radius:14px;padding:.75rem;margin-bottom:.75rem}
+.stk-search{width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:10px;font-size:13px;margin-bottom:8px}
+.stk-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+.stk-row:last-child{border:none}
+.stk-sku{font-family:monospace;font-size:10px;color:#444}
+.stk-info{font-size:10px;color:#888}
+.stk-qty{font-weight:700;min-width:28px;text-align:right}
+.stk-qty.ok{color:#1D9E75}
+.stk-qty.low{color:#e65100}
+.stk-qty.out{color:#e53935}
+/* summary */
+.sum-box{background:#fff;border-radius:14px;padding:.75rem;margin-bottom:.75rem}
+.sum-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.sum-row:last-child{border:none;font-weight:700;font-size:15px}
+/* total bar */
+.tot{background:#1D9E75;border-radius:14px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.tot span:first-child{font-size:12px;color:rgba(255,255,255,.8)}
+.tot span:last-child{font-size:18px;font-weight:800;color:#fff}
+/* modal */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:flex-end;justify-content:center}
+.mbg.show{display:flex}
+.modal{background:#fff;border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2.5rem;width:100%;max-width:430px;animation:su .22s ease}
+@keyframes su{from{transform:translateY(80px);opacity:0}to{transform:translateY(0);opacity:1}}
+.m-sku{font-size:10px;font-family:monospace;color:#888;margin-bottom:3px}
+.m-info{font-size:16px;font-weight:700;margin-bottom:2px}
+.m-meta{font-size:13px;color:#888;margin-bottom:1rem}
+.m-price{font-size:44px;font-weight:900;color:#1D9E75;text-align:center;margin-bottom:4px}
+.m-plbl{font-size:11px;color:#888;text-align:center;margin-bottom:.75rem}
+.m-stk{display:flex;justify-content:center;margin-bottom:.75rem}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 14px;border-radius:20px;font-weight:600}
+.pill.ok{background:#e6f9f3;color:#1D9E75}
+.pill.low{background:#fff3e0;color:#e65100}
+.pill.out{background:#fde8e8;color:#e53935}
+.qrow{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:1.25rem}
+.qrow label{font-size:13px;color:#888}
+.qb{width:38px;height:38px;border-radius:50%;font-size:22px;font-weight:700;border:1px solid #ddd;background:#f5f5f5;cursor:pointer}
+.qv{font-size:24px;font-weight:800;min-width:44px;text-align:center}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.b-ok{padding:16px;font-size:16px;font-weight:800;background:#1D9E75;color:#fff;border:none;border-radius:14px;cursor:pointer}
+.b-ok:disabled{opacity:.35;cursor:not-allowed}
+.b-no{padding:16px;font-size:16px;font-weight:800;background:#fde8e8;color:#e53935;border:none;border-radius:14px;cursor:pointer}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:14px;font-size:13px;font-weight:700;z-index:1100;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.18)}
+.t-ok{background:#e6f9f3;color:#1D9E75;border:1px solid #1D9E75}
+.t-err{background:#fde8e8;color:#e53935;border:1px solid #e53935}
 </style>
-
+</head>
+<body>
 <div class="app">
-  <div class="hdr">
-    <div class="hdr-left">
-      <i class="ti ti-barcode" style="font-size:20px;color:var(--color-text-secondary)"></i>
-      <h2>ສະແກນ & ຂາຍ</h2>
+  <h2>🛍 POS ສະແກນ & ຂາຍ <span style="font-size:11px;color:#888;font-weight:400">135 SKU</span></h2>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('sell')">ຂາຍ</button>
+    <button class="tab" onclick="showTab('log')">ປະຫວັດ</button>
+    <button class="tab" onclick="showTab('stock')">ສະຕັອກ</button>
+  </div>
+
+  <!-- SELL TAB -->
+  <div id="tab-sell">
+    <button class="cam-btn" id="cb" onclick="toggleCam()">📷 ກົດນີ້ເພື່ອສ່ອງ Barcode</button>
+    <div id="vw">
+      <video id="vid" autoplay playsinline muted></video>
+      <div class="sbox"><div class="sline"></div></div>
+      <div class="hint">ສ່ອງ barcode ເຂົ້າກ່ອບສີຂຽວ</div>
     </div>
-    <div class="hdr-right">
-      <button class="icon-btn" id="cam-toggle" onclick="toggleCam()">
-        <i class="ti ti-camera"></i> ກ້ອງ
-      </button>
+    <div class="manual">
+      <input id="si" type="text" placeholder="ຫຼື ພິມ SKU..." autocomplete="off"/>
+      <button onclick="doLookup()">🔍</button>
+    </div>
+    <div id="today-sum" style="display:none"></div>
+  </div>
+
+  <!-- LOG TAB -->
+  <div id="tab-log" style="display:none">
+    <div class="log-box">
+      <div class="log-hdr">
+        <span id="log-title">ປະຫວັດການຂາຍ</span>
+        <div style="display:flex;gap:6px">
+          <button class="export-btn" onclick="exportCSV()">📥 Export CSV</button>
+          <button class="clear-btn" onclick="clearLog()">🗑 ລ້າງ</button>
+        </div>
+      </div>
+      <div id="ll"></div>
     </div>
   </div>
 
-  <!-- Camera -->
-  <div class="cam-wrap" id="cam-wrap">
-    <video id="vid" autoplay playsinline muted></video>
-    <div class="scan-overlay"><div class="scan-box"></div></div>
-    <div class="cam-hint">ສ່ອງ barcode ເຂົ້າກ່ອບສີຂຽວ</div>
-  </div>
-
-  <!-- Start screen (shown when cam off) -->
-  <div class="start-screen" id="start-screen">
-    <div class="start-icon">📷</div>
-    <div class="start-title">ກົດ "ກ້ອງ" ເພື່ອເລີ່ມສະແກນ</div>
-    <div class="start-sub">ຫຼື ພິມ SKU ດ້ວຍມືລຸ່ມນີ້</div>
-    <button class="scan-big-btn" onclick="toggleCam()">
-      <i class="ti ti-camera"></i> ເປີດກ້ອງສະແກນ
-    </button>
-  </div>
-
-  <!-- Manual input -->
-  <div class="manual-row">
-    <input type="text" id="sku-in" placeholder="ພິມ SKU..." autocomplete="off"/>
-    <button onclick="lookupManual()"><i class="ti ti-search"></i> ຄົ້ນ</button>
-  </div>
-
-  <!-- Sold log -->
-  <div class="log-wrap" id="log-wrap" style="display:none">
-    <h3>ລາຍການຂາຍວັນນີ້ <button onclick="clearLog()"><i class="ti ti-trash"></i> ລ້າງ</button></h3>
-    <div id="log-list"></div>
-  </div>
-  <div class="total-bar" id="total-bar" style="display:none">
-    <span class="tl">ຍອດລວມວັນນີ້</span>
-    <span class="tv" id="total-val">0 ກີບ</span>
+  <!-- STOCK TAB -->
+  <div id="tab-stock" style="display:none">
+    <div class="stk-box">
+      <input class="stk-search" type="text" placeholder="ຄົ້ນ SKU / ສີ..." oninput="renderStock(this.value)"/>
+      <div id="stk-list"></div>
+    </div>
   </div>
 </div>
 
-<!-- Modal -->
-<div class="modal-bg" id="modal">
+<!-- MODAL -->
+<div class="mbg" id="mb">
   <div class="modal">
-    <div class="modal-sku" id="m-sku"></div>
-    <div class="modal-name" id="m-name"></div>
-    <div class="modal-meta" id="m-meta"></div>
-    <div class="price-big" id="m-price"></div>
-    <div class="price-sub">ລາຄາຂາຍ (ກີບ)</div>
-    <div style="display:flex;justify-content:center;margin-bottom:1rem">
-      <span class="stock-pill" id="m-stock"></span>
+    <div class="m-sku" id="msku"></div>
+    <div class="m-info" id="minf"></div>
+    <div class="m-meta" id="mmet"></div>
+    <div class="m-price" id="mprc"></div>
+    <div class="m-plbl">ລາຄາຂາຍ (ກີບ)</div>
+    <div class="m-stk"><span class="pill" id="mstk"></span></div>
+    <div class="qrow">
+      <label>ຈຳນວນ</label>
+      <button class="qb" onclick="adj(-1)">−</button>
+      <div class="qv" id="mqv">1</div>
+      <button class="qb" onclick="adj(1)">+</button>
     </div>
-    <div class="qty-sel">
-      <label>ຈຳນວນ:</label>
-      <button class="qbtn" onclick="adjQty(-1)">−</button>
-      <div class="qval" id="m-qty">1</div>
-      <button class="qbtn" onclick="adjQty(1)">+</button>
-    </div>
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="cancelSale()">✕ Cancel</button>
-      <button class="btn-ok" id="btn-ok" onclick="confirmSale()">✓ OK Sold</button>
+    <div class="btns">
+      <button class="b-no" onclick="doCancel()">✕ Cancel</button>
+      <button class="b-ok" id="bok" onclick="doSell()">✓ OK Sold</button>
     </div>
   </div>
 </div>
-
-<!-- Toast -->
-<div class="toast" id="toast"></div>
+<div class="toast" id="tst"></div>
 
 <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 <script>
-// ===== ALL 135 SKU =====
+// ===== STOCK DATA =====
 const RAW=[
-  ["24ASW-251-L065","ສີຟ້າ","Female","XXL",265000],
-  ["24ASW-251-L064","ສີຟ້າ","Female","XL",265000],
-  ["24ASW-251-L063","ສີຟ້າ","Female","L",265000],
-  ["24ASW-251-L062","ສີຟ້າ","Female","M",265000],
-  ["24ASW-251-G105","ສີຂຽວ","Female","XXL",265000],
-  ["24ASW-251-G104","ສີຂຽວ","Female","XL",265000],
-  ["24ASW-251-G103","ສີຂຽວ","Female","L",265000],
-  ["24ASW-251-G102","ສີຂຽວ","Female","M",265000],
-  ["24ASW-251-G101","ສີຂຽວ","Female","S",265000],
-  ["24ASW-251-P115","ສີບົວ","Female","XXL",265000],
-  ["24ASW-251-P114","ສີບົວ","Female","XL",265000],
-  ["24ASW-251-P113","ສີບົວ","Female","L",265000],
-  ["24ASW-251-P112","ສີບົວ","Female","M",265000],
-  ["24ASW-251-P111","ສີບົວ","Female","S",265000],
-  ["24ASW-250-P125","ສີບົວ","Female","XXL",230000],
-  ["24ASW-250-P124","ສີບົວ","Female","XL",230000],
-  ["24ASW-250-P123","ສີບົວ","Female","L",230000],
-  ["24ASW-250-P122","ສີບົວ","Female","M",230000],
-  ["24ASW-250-P121","ສີບົວ","Female","S",230000],
-  ["24ASW-250-V115","ສີມ່ວງ","Female","XXL",230000],
-  ["24ASW-250-V114","ສີມ່ວງ","Female","XL",230000],
-  ["24ASW-250-V113","ສີມ່ວງ","Female","L",230000],
-  ["24ASW-250-V112","ສີມ່ວງ","Female","M",230000],
-  ["24ASW-250-V111","ສີມ່ວງ","Female","S",230000],
-  ["ASW0101-R05-B085","ສີດຳ","Female","XXL",220000],
-  ["ASW0101-R05-B084","ສີດຳ","Female","XL",220000],
-  ["ASW0101-R05-B083","ສີດຳ","Female","L",220000],
-  ["ASW0101-R05-B082","ສີດຳ","Female","M",220000],
-  ["ASW0101-R05-B081","ສີດຳ","Female","S",220000],
-  ["ASW0101-R05-W015","ສີຂາວ","Female","XXL",220000],
-  ["ASW0101-R05-W014","ສີຂາວ","Female","XL",220000],
-  ["ASW0101-R05-W013","ສີຂາວ","Female","L",220000],
-  ["ASW0101-R05-W011","ສີຂາວ","Female","S",220000],
-  ["ASW0101-R10-B085","ສີດຳ","Female","XXL",230000],
-  ["ASW0101-R10-B084","ສີດຳ","Female","XL",230000],
-  ["ASW0101-R10-B083","ສີດຳ","Female","L",230000],
-  ["ASW0101-R10-B082","ສີດຳ","Female","M",230000],
-  ["ASW0101-R10-B081","ສີດຳ","Female","S",230000],
-  ["ASW0101-R10-W015","ສີຂາວ","Female","XXL",230000],
-  ["ASW0101-R10-W014","ສີຂາວ","Female","XL",230000],
-  ["ASW0101-R10-W013","ສີຂາວ","Female","L",230000],
-  ["ASW0101-R10-W012","ສີຂາວ","Female","M",230000],
-  ["ASW0101-R10-W011","ສີຂາວ","Female","S",230000],
-  ["ASW0101-R01-P015","ສີບົວ","Female","XXL",200000],
-  ["ASW0101-R01-P014","ສີບົວ","Female","XL",200000],
-  ["ASW0101-R01-P013","ສີບົວ","Female","L",200000],
-  ["ASW0101-R01-P012","ສີບົວ","Female","M",200000],
-  ["ASW0101-R01-P011","ສີບົວ","Female","S",200000],
-  ["ASW0101-R01-B055","ສີດຳ","Female","XXL",200000],
-  ["ASW0101-R01-B054","ສີດຳ","Female","XL",200000],
-  ["ASW0101-R01-B053","ສີດຳ","Female","L",200000],
-  ["ASW0101-R01-B052","ສີດຳ","Female","M",200000],
-  ["ASW0101-R01-B051","ສີດຳ","Female","S",200000],
-  ["ASW0101-R01-B085","ສີດຳ","Female","XXL",200000],
-  ["ASW0101-R01-B084","ສີດຳ","Female","XL",200000],
-  ["ASW0101-R01-B083","ສີດຳ","Female","L",200000],
-  ["ASW0101-R01-B082","ສີດຳ","Female","M",200000],
-  ["ASW0101-R01-B081","ສີດຳ","Female","S",200000],
-  ["ASW0101-R01-W015","ສີຂາວ","Female","XXL",200000],
-  ["ASW0101-R01-W014","ສີຂາວ","Female","XL",200000],
-  ["ASW0101-R01-W013","ສີຂາວ","Female","L",200000],
-  ["ASW0101-R01-W012","ສີຂາວ","Female","M",200000],
-  ["ASW0101-R01-W011","ສີຂາວ","Female","S",200000],
-  ["ASW0101-R09-K011","Cream","Female","S",230000],
-  ["ASW0101-R09-K012","Cream","Female","M",230000],
-  ["ASW0101-R09-K013","Cream","Female","L",230000],
-  ["23ASW-102-L061","Blue","Female","S",230000],
-  ["23ASW-102-L062","Blue","Female","M",230000],
-  ["23ASW-102-L063","Blue","Female","L",230000],
-  ["23ASW-102-Y071","Yellow","Female","S",230000],
-  ["23ASW-102-Y072","Yellow","Female","M",230000],
-  ["23ASW-102-Y073","Yellow","Female","L",230000],
-  ["24ASW-249-B011","White","Female","S",240000],
-  ["24ASW-249-B012","White","Female","M",240000],
-  ["24ASW-249-B014","White","Female","XL",240000],
-  ["24ASW-249-L071","Blue","Female","S",240000],
-  ["24ASW-249-L072","Blue","Female","M",240000],
-  ["24ASW-249-L074","Blue","Female","XL",240000],
-  ["24ASW-249-P121","Pink Pastel","Female","S",240000],
-  ["24ASW-249-P122","Pink Pastel","Female","M",240000],
-  ["24ASW-249-P123","Pink Pastel","Female","L",240000],
-  ["24ASW-249-P124","Pink Pastel","Female","XL",240000],
-  ["24ASW-249-V111","Purple Pastel","Female","S",240000],
-  ["24ASW-249-V112","Purple Pastel","Female","M",240000],
-  ["24ASW-249-V113","Purple Pastel","Female","L",240000],
-  ["24ASW-249-V114","Purple Pastel","Female","XL",240000],
-  ["25ASW-266-G071","Green","Female","S",250000],
-  ["25ASW-266-G072","Green","Female","M",250000],
-  ["25ASW-266-G073","Green","Female","L",250000],
-  ["25ASW-266-G074","Green","Female","XL",250000],
-  ["25ASW-266-G075","Green","Female","XXL",250000],
-  ["25ASW-266-N111","Light Blue","Female","S",250000],
-  ["25ASW-266-N112","Light Blue","Female","M",250000],
-  ["25ASW-266-N114","Light Blue","Female","XL",250000],
-  ["ASW0101-R10-B081","White","Female","S",250000],
-  ["23ASW-216-B011","White","Female","S",260000],
-  ["23ASW-216-B012","White","Female","M",260000],
-  ["23ASW-216-B014","White","Female","XL",260000],
-  ["23ASW-216-K011","Cream","Female","S",260000],
-  ["23ASW-216-K012","Cream","Female","M",260000],
-  ["23ASW-216-K013","Cream","Female","L",260000],
-  ["23ASW-216-K014","Cream","Female","XL",260000],
-  ["23ASW-216-K015","Cream","Female","XXL",260000],
-  ["23ASW-216-L091","Blue","Female","S",260000],
-  ["23ASW-216-L092","Blue","Female","M",260000],
-  ["23ASW-216-L093","Blue","Female","L",260000],
-  ["23ASW-216-L094","Blue","Female","XL",260000],
-  ["23ASW-216-L095","Blue","Female","XXL",260000],
-  ["23ASW-103-N081","Light Blue","Female","S",270000],
-  ["23ASW-103-N082","Light Blue","Female","M",270000],
-  ["23ASW-103-N083","Light Blue","Female","L",270000],
-  ["23ASW-103-N084","Light Blue","Female","XL",270000],
-  ["23ASW-103-N085","Light Blue","Female","XXL",270000],
-  ["23ASW-103-Y073","Yellow","Female","L",270000],
-  ["23ASW-103-Y074","Yellow","Female","XL",270000],
-  ["23ASW-103-Y075","Yellow","Female","XXL",270000],
-  ["25ASW-287-L061","Blue","Female","S",270000],
-  ["25ASW-287-L062","Blue","Female","M",270000],
-  ["25ASW-287-L063","Blue","Female","L",270000],
-  ["25ASW-287-L064","Blue","Female","XL",270000],
-  ["25ASW-287-L065","Blue","Female","XXL",270000],
-  ["23ASM-986-L061","Blue","Male","S",270000],
-  ["23ASM-986-L062","Blue","Male","M",270000],
-  ["23ASM-986-L063","Blue","Male","L",270000],
-  ["23ASM-986-W041","White","Male","S",270000],
-  ["23ASM-986-W042","White","Male","M",270000],
-  ["24ASW-251-L062","Blue","Female","M",280000],
-  ["24ASW-251-L063","Blue","Female","L",280000],
-  ["24ASW-251-L064","Blue","Female","XL",280000],
-  ["23ASM-987-L063","Blue","Male","L",270000],
-  ["23ASM-991-W042","White","Male","M",300000],
-  ["23ASM-991-W043","White","Male","L",300000],
-  ["23ASM-991-W044","White","Male","XL",300000],
-  ["23ASM-994-L061","Blue","Male","S",300000],
-  ["23ASM-994-L062","Blue","Male","M",300000],
+  ["24ASW-251-L065","ສີຟ້າ","Female","XXL",265000,5],["24ASW-251-L064","ສີຟ້າ","Female","XL",265000,5],
+  ["24ASW-251-L063","ສີຟ້າ","Female","L",265000,5],["24ASW-251-L062","ສີຟ້າ","Female","M",265000,5],
+  ["24ASW-251-G105","ສີຂຽວ","Female","XXL",265000,3],["24ASW-251-G104","ສີຂຽວ","Female","XL",265000,3],
+  ["24ASW-251-G103","ສີຂຽວ","Female","L",265000,3],["24ASW-251-G102","ສີຂຽວ","Female","M",265000,3],
+  ["24ASW-251-G101","ສີຂຽວ","Female","S",265000,3],["24ASW-251-P115","ສີບົວ","Female","XXL",265000,5],
+  ["24ASW-251-P114","ສີບົວ","Female","XL",265000,5],["24ASW-251-P113","ສີບົວ","Female","L",265000,5],
+  ["24ASW-251-P112","ສີບົວ","Female","M",265000,5],["24ASW-251-P111","ສີບົວ","Female","S",265000,5],
+  ["24ASW-250-P125","ສີບົວ","Female","XXL",230000,3],["24ASW-250-P124","ສີບົວ","Female","XL",230000,3],
+  ["24ASW-250-P123","ສີບົວ","Female","L",230000,3],["24ASW-250-P122","ສີບົວ","Female","M",230000,3],
+  ["24ASW-250-P121","ສີບົວ","Female","S",230000,3],["24ASW-250-V115","ສີມ່ວງ","Female","XXL",230000,5],
+  ["24ASW-250-V114","ສີມ່ວງ","Female","XL",230000,5],["24ASW-250-V113","ສີມ່ວງ","Female","L",230000,5],
+  ["24ASW-250-V112","ສີມ່ວງ","Female","M",230000,5],["24ASW-250-V111","ສີມ່ວງ","Female","S",230000,5],
+  ["ASW0101-R05-B085","ສີດຳ","Female","XXL",220000,5],["ASW0101-R05-B084","ສີດຳ","Female","XL",220000,5],
+  ["ASW0101-R05-B083","ສີດຳ","Female","L",220000,5],["ASW0101-R05-B082","ສີດຳ","Female","M",220000,5],
+  ["ASW0101-R05-B081","ສີດຳ","Female","S",220000,5],["ASW0101-R05-W015","ສີຂາວ","Female","XXL",220000,5],
+  ["ASW0101-R05-W014","ສີຂາວ","Female","XL",220000,5],["ASW0101-R05-W013","ສີຂາວ","Female","L",220000,5],
+  ["ASW0101-R05-W011","ສີຂາວ","Female","S",220000,5],["ASW0101-R10-B085","ສີດຳ","Female","XXL",230000,5],
+  ["ASW0101-R10-B084","ສີດຳ","Female","XL",230000,5],["ASW0101-R10-B083","ສີດຳ","Female","L",230000,5],
+  ["ASW0101-R10-B082","ສີດຳ","Female","M",230000,5],["ASW0101-R10-B081","ສີດຳ","Female","S",230000,5],
+  ["ASW0101-R10-W015","ສີຂາວ","Female","XXL",230000,5],["ASW0101-R10-W014","ສີຂາວ","Female","XL",230000,5],
+  ["ASW0101-R10-W013","ສີຂາວ","Female","L",230000,5],["ASW0101-R10-W012","ສີຂາວ","Female","M",230000,5],
+  ["ASW0101-R10-W011","ສີຂາວ","Female","S",230000,5],["ASW0101-R01-P015","ສີບົວ","Female","XXL",200000,5],
+  ["ASW0101-R01-P014","ສີບົວ","Female","XL",200000,5],["ASW0101-R01-P013","ສີບົວ","Female","L",200000,5],
+  ["ASW0101-R01-P012","ສີບົວ","Female","M",200000,5],["ASW0101-R01-P011","ສີບົວ","Female","S",200000,5],
+  ["ASW0101-R01-B055","ສີດຳ","Female","XXL",200000,5],["ASW0101-R01-B054","ສີດຳ","Female","XL",200000,5],
+  ["ASW0101-R01-B053","ສີດຳ","Female","L",200000,5],["ASW0101-R01-B052","ສີດຳ","Female","M",200000,5],
+  ["ASW0101-R01-B051","ສີດຳ","Female","S",200000,5],["ASW0101-R01-B085","ສີດຳ","Female","XXL",200000,5],
+  ["ASW0101-R01-B084","ສີດຳ","Female","XL",200000,5],["ASW0101-R01-B083","ສີດຳ","Female","L",200000,5],
+  ["ASW0101-R01-B082","ສີດຳ","Female","M",200000,5],["ASW0101-R01-B081","ສີດຳ","Female","S",200000,5],
+  ["ASW0101-R01-W015","ສີຂາວ","Female","XXL",200000,5],["ASW0101-R01-W014","ສີຂາວ","Female","XL",200000,5],
+  ["ASW0101-R01-W013","ສີຂາວ","Female","L",200000,5],["ASW0101-R01-W012","ສີຂາວ","Female","M",200000,5],
+  ["ASW0101-R01-W011","ສີຂາວ","Female","S",200000,5],["ASW0101-R09-K011","Cream","Female","S",230000,10],
+  ["ASW0101-R09-K012","Cream","Female","M",230000,5],["ASW0101-R09-K013","Cream","Female","L",230000,5],
+  ["23ASW-102-L061","Blue","Female","S",230000,5],["23ASW-102-L062","Blue","Female","M",230000,5],
+  ["23ASW-102-L063","Blue","Female","L",230000,5],["23ASW-102-Y071","Yellow","Female","S",230000,5],
+  ["23ASW-102-Y072","Yellow","Female","M",230000,5],["23ASW-102-Y073","Yellow","Female","L",230000,5],
+  ["24ASW-249-B011","White","Female","S",240000,5],["24ASW-249-B012","White","Female","M",240000,3],
+  ["24ASW-249-B014","White","Female","XL",240000,2],["24ASW-249-L071","Blue","Female","S",240000,4],
+  ["24ASW-249-L072","Blue","Female","M",240000,5],["24ASW-249-L074","Blue","Female","XL",240000,2],
+  ["24ASW-249-P121","Pink Pastel","Female","S",240000,5],["24ASW-249-P122","Pink Pastel","Female","M",240000,5],
+  ["24ASW-249-P123","Pink Pastel","Female","L",240000,3],["24ASW-249-P124","Pink Pastel","Female","XL",240000,2],
+  ["24ASW-249-V111","Purple Pastel","Female","S",240000,5],["24ASW-249-V112","Purple Pastel","Female","M",240000,5],
+  ["24ASW-249-V113","Purple Pastel","Female","L",240000,3],["24ASW-249-V114","Purple Pastel","Female","XL",240000,2],
+  ["25ASW-266-G071","Green","Female","S",250000,5],["25ASW-266-G072","Green","Female","M",250000,5],
+  ["25ASW-266-G073","Green","Female","L",250000,3],["25ASW-266-G074","Green","Female","XL",250000,2],
+  ["25ASW-266-G075","Green","Female","XXL",250000,2],["25ASW-266-N111","Light Blue","Female","S",250000,5],
+  ["25ASW-266-N112","Light Blue","Female","M",250000,5],["25ASW-266-N114","Light Blue","Female","XL",250000,5],
+  ["ASW0101-R10-B081","White","Female","S",250000,5],["23ASW-216-B011","White","Female","S",260000,10],
+  ["23ASW-216-B012","White","Female","M",260000,5],["23ASW-216-B014","White","Female","XL",260000,2],
+  ["23ASW-216-K011","Cream","Female","S",260000,5],["23ASW-216-K012","Cream","Female","M",260000,5],
+  ["23ASW-216-K013","Cream","Female","L",260000,3],["23ASW-216-K014","Cream","Female","XL",260000,3],
+  ["23ASW-216-K015","Cream","Female","XXL",260000,2],["23ASW-216-L091","Blue","Female","S",260000,10],
+  ["23ASW-216-L092","Blue","Female","M",260000,5],["23ASW-216-L093","Blue","Female","L",260000,2],
+  ["23ASW-216-L094","Blue","Female","XL",260000,2],["23ASW-216-L095","Blue","Female","XXL",260000,2],
+  ["23ASW-103-N081","Light Blue","Female","S",270000,5],["23ASW-103-N082","Light Blue","Female","M",270000,3],
+  ["23ASW-103-N083","Light Blue","Female","L",270000,3],["23ASW-103-N084","Light Blue","Female","XL",270000,3],
+  ["23ASW-103-N085","Light Blue","Female","XXL",270000,3],["23ASW-103-Y073","Yellow","Female","L",270000,3],
+  ["23ASW-103-Y074","Yellow","Female","XL",270000,3],["23ASW-103-Y075","Yellow","Female","XXL",270000,2],
+  ["25ASW-287-L061","Blue","Female","S",270000,5],["25ASW-287-L062","Blue","Female","M",270000,5],
+  ["25ASW-287-L063","Blue","Female","L",270000,3],["25ASW-287-L064","Blue","Female","XL",270000,3],
+  ["25ASW-287-L065","Blue","Female","XXL",270000,2],["23ASM-986-L061","Blue","Male","S",270000,0],
+  ["23ASM-986-L062","Blue","Male","M",270000,3],["23ASM-986-L063","Blue","Male","L",270000,3],
+  ["23ASM-986-W041","White","Male","S",270000,0],["23ASM-986-W042","White","Male","M",270000,2],
+  ["24ASW-251-L062","Blue","Female","M",280000,5],["24ASW-251-L063","Blue","Female","L",280000,5],
+  ["24ASW-251-L064","Blue","Female","XL",280000,2],["23ASM-987-L063","Blue","Male","L",270000,3],
+  ["23ASM-991-W042","White","Male","M",300000,2],["23ASM-991-W043","White","Male","L",300000,3],
+  ["23ASM-991-W044","White","Male","XL",300000,3],["23ASM-994-L061","Blue","Male","S",300000,0],
+  ["23ASM-994-L062","Blue","Male","M",300000,2],
 ];
 
-// Initial stock counts
-const INIT_QTY={
-  "24ASW-251-L065":5,"24ASW-251-L064":5,"24ASW-251-L063":5,"24ASW-251-L062":5,
-  "24ASW-251-G105":3,"24ASW-251-G104":3,"24ASW-251-G103":3,"24ASW-251-G102":3,"24ASW-251-G101":3,
-  "24ASW-251-P115":5,"24ASW-251-P114":5,"24ASW-251-P113":5,"24ASW-251-P112":5,"24ASW-251-P111":5,
-  "24ASW-250-P125":3,"24ASW-250-P124":3,"24ASW-250-P123":3,"24ASW-250-P122":3,"24ASW-250-P121":3,
-  "24ASW-250-V115":5,"24ASW-250-V114":5,"24ASW-250-V113":5,"24ASW-250-V112":5,"24ASW-250-V111":5,
-  "ASW0101-R05-B085":5,"ASW0101-R05-B084":5,"ASW0101-R05-B083":5,"ASW0101-R05-B082":5,"ASW0101-R05-B081":5,
-  "ASW0101-R05-W015":5,"ASW0101-R05-W014":5,"ASW0101-R05-W013":5,"ASW0101-R05-W011":5,
-  "ASW0101-R10-B085":5,"ASW0101-R10-B084":5,"ASW0101-R10-B083":5,"ASW0101-R10-B082":5,"ASW0101-R10-B081":5,
-  "ASW0101-R10-W015":5,"ASW0101-R10-W014":5,"ASW0101-R10-W013":5,"ASW0101-R10-W012":5,"ASW0101-R10-W011":5,
-  "ASW0101-R01-P015":5,"ASW0101-R01-P014":5,"ASW0101-R01-P013":5,"ASW0101-R01-P012":5,"ASW0101-R01-P011":5,
-  "ASW0101-R01-B055":5,"ASW0101-R01-B054":5,"ASW0101-R01-B053":5,"ASW0101-R01-B052":5,"ASW0101-R01-B051":5,
-  "ASW0101-R01-B085":5,"ASW0101-R01-B084":5,"ASW0101-R01-B083":5,"ASW0101-R01-B082":5,"ASW0101-R01-B081":5,
-  "ASW0101-R01-W015":5,"ASW0101-R01-W014":5,"ASW0101-R01-W013":5,"ASW0101-R01-W012":5,"ASW0101-R01-W011":5,
-  "ASW0101-R09-K011":10,"ASW0101-R09-K012":5,"ASW0101-R09-K013":5,
-  "23ASW-102-L061":5,"23ASW-102-L062":5,"23ASW-102-L063":5,
-  "23ASW-102-Y071":5,"23ASW-102-Y072":5,"23ASW-102-Y073":5,
-  "24ASW-249-B011":5,"24ASW-249-B012":3,"24ASW-249-B014":2,
-  "24ASW-249-L071":4,"24ASW-249-L072":5,"24ASW-249-L074":2,
-  "24ASW-249-P121":5,"24ASW-249-P122":5,"24ASW-249-P123":3,"24ASW-249-P124":2,
-  "24ASW-249-V111":5,"24ASW-249-V112":5,"24ASW-249-V113":3,"24ASW-249-V114":2,
-  "25ASW-266-G071":5,"25ASW-266-G072":5,"25ASW-266-G073":3,"25ASW-266-G074":2,"25ASW-266-G075":2,
-  "25ASW-266-N111":5,"25ASW-266-N112":5,"25ASW-266-N114":5,
-  "23ASW-216-B011":10,"23ASW-216-B012":5,"23ASW-216-B014":2,
-  "23ASW-216-K011":5,"23ASW-216-K012":5,"23ASW-216-K013":3,"23ASW-216-K014":3,"23ASW-216-K015":2,
-  "23ASW-216-L091":10,"23ASW-216-L092":5,"23ASW-216-L093":2,"23ASW-216-L094":2,"23ASW-216-L095":2,
-  "23ASW-103-N081":5,"23ASW-103-N082":3,"23ASW-103-N083":3,"23ASW-103-N084":3,"23ASW-103-N085":3,
-  "23ASW-103-Y073":3,"23ASW-103-Y074":3,"23ASW-103-Y075":2,
-  "25ASW-287-L061":5,"25ASW-287-L062":5,"25ASW-287-L063":3,"25ASW-287-L064":3,"25ASW-287-L065":2,
-  "23ASM-986-L061":0,"23ASM-986-L062":3,"23ASM-986-L063":3,
-  "23ASM-986-W041":0,"23ASM-986-W042":2,
-  "24ASW-251-L062":5,"24ASW-251-L063":5,"24ASW-251-L064":2,
-  "23ASM-987-L063":3,
-  "23ASM-991-W042":2,"23ASM-991-W043":3,"23ASM-991-W044":3,
-  "23ASM-994-L061":0,"23ASM-994-L062":2,
-};
+// ===== localStorage KEYS =====
+const KEY_STOCK='pos_stock_v1';
+const KEY_LOG='pos_log_v1';
 
-// Build stock map
-let stock={};
-RAW.forEach(([sku,color,gender,size,sell])=>{
-  const base=INIT_QTY[sku]??5;
-  stock[sku]={sku,color,gender,size,sell,remaining:base};
-});
+// Load or init stock
+function initStock(){
+  const saved=localStorage.getItem(KEY_STOCK);
+  if(saved){try{return JSON.parse(saved);}catch(e){}}
+  const s={};
+  RAW.forEach(([sk,c,g,sz,p,q])=>{s[sk]={sku:sk,color:c,gender:g,size:sz,sell:p,rem:q};});
+  localStorage.setItem(KEY_STOCK,JSON.stringify(s));
+  return s;
+}
+function saveStock(){localStorage.setItem(KEY_STOCK,JSON.stringify(stock));}
 
-let soldLog=[];
-let curSKU=null,curQty=1;
-let cr=null,scanning=false,lastCode='',lastTime=0;
+// Load or init log
+function initLog(){
+  const saved=localStorage.getItem(KEY_LOG);
+  if(saved){try{return JSON.parse(saved);}catch(e){}}
+  return [];
+}
+function saveLog(){localStorage.setItem(KEY_LOG,JSON.stringify(salesLog));}
 
-function fmt(n){return n.toLocaleString();}
+let stock=initStock();
+let salesLog=initLog();
+let cur=null,qty=1,cr=null,scanning=false,lc='',lt=0;
+let curTab='sell';
+
+const fmt=n=>n.toLocaleString();
+
+// ===== TABS =====
+function showTab(t){
+  curTab=t;
+  ['sell','log','stock'].forEach(id=>{
+    document.getElementById('tab-'+id).style.display=(id===t?'block':'none');
+  });
+  document.querySelectorAll('.tab').forEach((b,i)=>{
+    b.classList.toggle('active',['sell','log','stock'][i]===t);
+  });
+  if(t==='log')renderLog();
+  if(t==='stock')renderStock('');
+}
 
 // ===== CAMERA =====
 async function toggleCam(){
   if(scanning){stopCam();return;}
+  const btn=document.getElementById('cb');
   try{
-    if(typeof ZXing==='undefined'){toast('ກຳລັງໂຫຼດ...','err');return;}
+    if(typeof ZXing==='undefined'){showToast('ກຳລັງໂຫຼດ...','err');return;}
     cr=new ZXing.BrowserMultiFormatReader();
     const devs=await cr.listVideoInputDevices();
-    const back=devs.find(d=>d.label.toLowerCase().includes('back')||d.label.toLowerCase().includes('rear')||d.label.toLowerCase().includes('environment'));
+    const back=devs.find(d=>d.label.toLowerCase().match(/back|rear|environment/));
     const id=(back||devs[devs.length-1]||devs[0])?.deviceId;
-    document.getElementById('cam-wrap').style.display='block';
-    document.getElementById('start-screen').style.display='none';
-    const btn=document.getElementById('cam-toggle');
-    btn.innerHTML='<i class="ti ti-camera-off"></i> ປິດ';
-    btn.classList.add('active');
+    document.getElementById('vw').style.display='block';
+    btn.textContent='🔴 ປິດກ້ອງ';btn.classList.add('on');
     scanning=true;
     await cr.decodeFromVideoDevice(id||null,'vid',onScan);
-  }catch(e){
-    toast('ເປີດກ້ອງບໍ່ໄດ້','err');
-    stopCam();
-  }
+  }catch(e){showToast('ເປີດກ້ອງບໍ່ໄດ້','err');stopCam();}
 }
-
 function stopCam(){
   if(cr){try{cr.reset();}catch(e){}}
   cr=null;scanning=false;
-  document.getElementById('cam-wrap').style.display='none';
-  document.getElementById('start-screen').style.display='block';
-  const btn=document.getElementById('cam-toggle');
-  btn.innerHTML='<i class="ti ti-camera"></i> ກ້ອງ';
-  btn.classList.remove('active');
+  document.getElementById('vw').style.display='none';
+  const btn=document.getElementById('cb');
+  btn.textContent='📷 ກົດນີ້ເພື່ອສ່ອງ Barcode';btn.classList.remove('on');
   const v=document.getElementById('vid');
-  if(v&&v.srcObject){v.srcObject.getTracks().forEach(t=>t.stop());v.srcObject=null;}
+  if(v?.srcObject)v.srcObject.getTracks().forEach(t=>t.stop());
 }
-
 function onScan(res){
   if(!res)return;
-  const now=Date.now();
-  const code=res.getText().trim().toUpperCase();
-  if(code===lastCode&&now-lastTime<3000)return;
-  lastCode=code;lastTime=now;
-  beep();
-  showModal(code);
+  const now=Date.now(),code=res.getText().trim().toUpperCase();
+  if(code===lc&&now-lt<3000)return;
+  lc=code;lt=now;beep();showModal(code);
 }
-
-function lookupManual(){
-  const v=document.getElementById('sku-in').value.trim().toUpperCase();
-  if(!v){toast('ໃສ່ SKU ກ່ອນ','err');return;}
-  showModal(v);
-  document.getElementById('sku-in').value='';
+function doLookup(){
+  const v=document.getElementById('si').value.trim().toUpperCase();
+  if(!v){showToast('ໃສ່ SKU ກ່ອນ','err');return;}
+  showModal(v);document.getElementById('si').value='';
 }
 
 // ===== MODAL =====
 function showModal(sku){
-  const item=stock[sku];
-  if(!item){toast('ບໍ່ພົບ: '+sku,'err');return;}
-  curSKU=sku; curQty=1;
-  const r=item.remaining;
-  document.getElementById('m-sku').textContent=sku;
-  document.getElementById('m-name').textContent=item.color+' — '+item.gender;
-  document.getElementById('m-meta').textContent='Size: '+item.size;
-  document.getElementById('m-price').textContent=fmt(item.sell);
-  document.getElementById('m-qty').textContent='1';
-  const sp=document.getElementById('m-stock');
-  if(r===0){sp.className='stock-pill out';sp.innerHTML='<i class="ti ti-alert-triangle"></i> ໝົດສະຕັອກ';}
-  else if(r<=3){sp.className='stock-pill low';sp.innerHTML='<i class="ti ti-alert-circle"></i> ໃກ້ໝົດ — ຄົງ '+r+' ອັນ';}
-  else{sp.className='stock-pill ok';sp.innerHTML='<i class="ti ti-package"></i> ຄົງ '+r+' ອັນ';}
-  document.getElementById('btn-ok').disabled=(r===0);
-  document.getElementById('modal').classList.add('show');
+  const it=stock[sku];
+  if(!it){showToast('ບໍ່ພົບ: '+sku,'err');return;}
+  cur=sku;qty=1;
+  document.getElementById('msku').textContent=sku;
+  document.getElementById('minf').textContent=it.color+' — '+it.gender;
+  document.getElementById('mmet').textContent='Size: '+it.size;
+  document.getElementById('mprc').textContent=fmt(it.sell);
+  document.getElementById('mqv').textContent='1';
+  const sp=document.getElementById('mstk');const r=it.rem;
+  if(r===0){sp.className='pill out';sp.textContent='⚠ ໝົດສະຕັອກ';}
+  else if(r<=3){sp.className='pill low';sp.textContent='⚡ ໃກ້ໝົດ — ຄົງ '+r+' ອັນ';}
+  else{sp.className='pill ok';sp.textContent='✓ ຄົງ '+r+' ອັນ';}
+  document.getElementById('bok').disabled=(r===0);
+  document.getElementById('mb').classList.add('show');
 }
+function adj(d){if(!cur)return;qty=Math.max(1,Math.min(stock[cur].rem,qty+d));document.getElementById('mqv').textContent=qty;}
+function doCancel(){document.getElementById('mb').classList.remove('show');cur=null;qty=1;lc='';}
 
-function adjQty(d){
-  if(!curSKU)return;
-  const max=stock[curSKU].remaining;
-  curQty=Math.max(1,Math.min(max,curQty+d));
-  document.getElementById('m-qty').textContent=curQty;
-}
-
-function cancelSale(){
-  document.getElementById('modal').classList.remove('show');
-  curSKU=null;curQty=1;
-  lastCode=''; // allow rescan same item
-}
-
-function confirmSale(){
-  if(!curSKU)return;
-  const item=stock[curSKU];
-  if(curQty>item.remaining){toast('ສະຕັອກບໍ່ພໍ!','err');return;}
-  item.remaining-=curQty;
-  const amt=item.sell*curQty;
-  soldLog.unshift({sku:curSKU,color:item.color,size:item.size,qty:curQty,amt,time:new Date().toLocaleTimeString('lo-LA',{hour:'2-digit',minute:'2-digit'})});
-  document.getElementById('modal').classList.remove('show');
+function doSell(){
+  if(!cur)return;
+  const it=stock[cur];
+  if(qty>it.rem){showToast('ສະຕັອກບໍ່ພໍ!','err');return;}
+  // ຫັກສະຕັອກ
+  it.rem-=qty;
+  saveStock();
+  // ບັນທຶກ log
+  const now=new Date();
+  const entry={
+    sku:cur,color:it.color,gender:it.gender,size:it.size,
+    qty,price:it.sell,amt:it.sell*qty,
+    date:now.toLocaleDateString('lo'),
+    time:now.toLocaleTimeString('lo',{hour:'2-digit',minute:'2-digit'}),
+    ts:now.toISOString()
+  };
+  salesLog.unshift(entry);
+  saveLog();
+  document.getElementById('mb').classList.remove('show');
   beepOk();
-  toast('✓ ຂາຍ '+curSKU+' x'+curQty+' = '+fmt(amt)+' ກີບ','ok');
-  curSKU=null;curQty=1;lastCode='';
-  renderLog();
+  showToast('✓ ຂາຍ x'+qty+' = '+fmt(it.sell*qty)+' ກີບ — ບັນທຶກແລ້ວ ✅','ok');
+  cur=null;qty=1;lc='';
+  renderTodaySummary();
 }
 
+// ===== TODAY SUMMARY =====
+function renderTodaySummary(){
+  const today=new Date().toLocaleDateString('lo');
+  const todayItems=salesLog.filter(s=>s.date===today);
+  const div=document.getElementById('today-sum');
+  if(!todayItems.length){div.style.display='none';return;}
+  const total=todayItems.reduce((s,i)=>s+i.amt,0);
+  const count=todayItems.reduce((s,i)=>s+i.qty,0);
+  div.style.display='block';
+  div.innerHTML=`<div class="sum-box">
+    <div style="font-size:13px;font-weight:600;color:#444;margin-bottom:8px">📊 ຍອດຂາຍວັນນີ້</div>
+    <div class="sum-row"><span>ຈຳນວນທີ່ຂາຍ</span><span>${count} ອັນ</span></div>
+    <div class="sum-row"><span>ຈຳນວນ SKU</span><span>${todayItems.length} ລາຍການ</span></div>
+    <div class="sum-row"><span>ຍອດລວມ</span><span style="color:#1D9E75">${fmt(total)} ກີບ</span></div>
+  </div>`;
+}
+
+// ===== LOG TAB =====
 function renderLog(){
-  const lw=document.getElementById('log-wrap');
-  const tb=document.getElementById('total-bar');
-  if(!soldLog.length){lw.style.display='none';tb.style.display='none';return;}
-  lw.style.display='block';tb.style.display='flex';
-  let total=0;
-  document.getElementById('log-list').innerHTML=soldLog.map(s=>{
-    total+=s.amt;
-    return`<div class="log-item">
-      <div>
-        <div class="log-sku">${s.sku}</div>
-        <div class="log-detail">${s.color} · ${s.size} · x${s.qty} · ${s.time}</div>
-      </div>
-      <div class="log-amt">+${fmt(s.amt)}</div>
+  const ll=document.getElementById('ll');
+  if(!salesLog.length){ll.innerHTML='<div class="empty">ຍັງບໍ່ມີປະຫວັດການຂາຍ</div>';return;}
+  // group by date
+  const groups={};
+  salesLog.forEach(s=>{
+    if(!groups[s.date])groups[s.date]=[];
+    groups[s.date].push(s);
+  });
+  let html='';
+  Object.entries(groups).forEach(([date,items])=>{
+    const tot=items.reduce((s,i)=>s+i.amt,0);
+    html+=`<div style="font-size:12px;font-weight:700;color:#1D9E75;padding:6px 0 4px">${date} — ${fmt(tot)} ກີບ</div>`;
+    items.forEach(s=>{
+      html+=`<div class="li">
+        <div class="li-l">
+          <div class="li-sku">${s.sku}</div>
+          <div class="li-sub">${s.color}·${s.size}·x${s.qty}·${s.time}</div>
+        </div>
+        <div class="li-r">+${fmt(s.amt)}</div>
+      </div>`;
+    });
+  });
+  ll.innerHTML=html;
+  // update title
+  const total=salesLog.reduce((s,i)=>s+i.amt,0);
+  document.getElementById('log-title').textContent=`ປະຫວັດ (${fmt(total)} ກີບ)`;
+}
+
+// ===== EXPORT CSV =====
+function exportCSV(){
+  if(!salesLog.length){showToast('ບໍ່ມີຂໍ້ມູນ','err');return;}
+  const rows=[['Date','Time','SKU','Color','Gender','Size','Qty','Price','Amount']];
+  salesLog.forEach(s=>rows.push([s.date,s.time,s.sku,s.color,s.gender,s.size,s.qty,s.price,s.amt]));
+  const csv=rows.map(r=>r.join(',')).join('\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='sales_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();URL.revokeObjectURL(url);
+  showToast('Export CSV ສຳເລັດ!','ok');
+}
+
+// ===== CLEAR LOG =====
+function clearLog(){
+  if(!confirm('ລ້າງປະຫວັດທັງໝົດ?'))return;
+  salesLog=[];saveLog();renderLog();
+  showToast('ລ້າງແລ້ວ','ok');
+}
+
+// ===== STOCK TAB =====
+function renderStock(q){
+  const items=Object.values(stock).filter(i=>
+    !q||i.sku.toLowerCase().includes(q.toLowerCase())||i.color.toLowerCase().includes(q.toLowerCase())
+  );
+  const div=document.getElementById('stk-list');
+  if(!items.length){div.innerHTML='<div class="empty">ບໍ່ພົບ</div>';return;}
+  div.innerHTML=items.map(i=>{
+    const cls=i.rem===0?'out':i.rem<=3?'low':'ok';
+    return`<div class="stk-row">
+      <div><div class="stk-sku">${i.sku}</div><div class="stk-info">${i.color}·${i.gender}·${i.size}·${fmt(i.sell)}ກີບ</div></div>
+      <div class="stk-qty ${cls}">${i.rem}</div>
     </div>`;
   }).join('');
-  document.getElementById('total-val').textContent=fmt(total)+' ກີບ';
 }
-
-function clearLog(){soldLog=[];renderLog();}
 
 // ===== AUDIO =====
-function beep(){
-  try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.12);o.start();o.stop(c.currentTime+0.12);}catch(e){}
-}
-function beepOk(){
-  try{const c=new(window.AudioContext||window.webkitAudioContext)();[660,880].forEach((f,i)=>{const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.setValueAtTime(0.25,c.currentTime+i*0.1);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+i*0.1+0.15);o.start(c.currentTime+i*0.1);o.stop(c.currentTime+i*0.1+0.15);});}catch(e){}
-}
+function beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.12);o.start();o.stop(c.currentTime+0.12);}catch(e){}}
+function beepOk(){try{const c=new(window.AudioContext||window.webkitAudioContext)();[660,880].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.setValueAtTime(0.25,c.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+i*.12+.15);o.start(c.currentTime+i*.12);o.stop(c.currentTime+i*.12+.15);});}catch(e){}}
 
 // ===== TOAST =====
-function toast(msg,type){
-  const el=document.getElementById('toast');
-  el.textContent=msg;
-  el.className='toast '+(type==='ok'?'ok-t':'err-t');
-  el.style.display='block';
-  setTimeout(()=>el.style.display='none',2500);
-}
+function showToast(msg,type){const el=document.getElementById('tst');el.textContent=msg;el.className='toast '+(type==='ok'?'t-ok':'t-err');el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
 
-// keyboard
-document.getElementById('sku-in').addEventListener('keydown',e=>{if(e.key==='Enter')lookupManual();});
-// close modal on bg click
-document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)cancelSale();});
+// ===== INIT =====
+document.getElementById('si').addEventListener('keydown',e=>{if(e.key==='Enter')doLookup();});
+document.getElementById('mb').addEventListener('click',function(e){if(e.target===this)doCancel();});
+renderTodaySummary();
 </script>
+</body>
+</html>
