@@ -2,145 +2,183 @@
 <html lang="lo">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
-<title>POS ສະແກນ & ຂາຍ</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>POS ສະແກນ</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:system-ui,sans-serif;background:#f5f5f5;color:#1a1a1a}
-.app{max-width:430px;margin:0 auto;padding:.75rem}
-h2{font-size:17px;font-weight:700;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
-.cam-btn{width:100%;padding:16px;font-size:16px;font-weight:700;background:#1D9E75;color:#fff;border:none;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:.75rem}
-.cam-btn.on{background:#e53935}
-#vw{display:none;position:relative;width:100%;background:#000;border-radius:14px;overflow:hidden;margin-bottom:.75rem}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,sans-serif;background:#F0F4FF;color:#1a1a1a;font-size:16px}
+.app{max-width:430px;margin:0 auto;padding:12px}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#1D9E75,#0D7A5A);border-radius:16px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.hdr h2{font-size:20px;font-weight:800;color:#fff}
+.hdr .sub{font-size:12px;color:rgba(255,255,255,.75);margin-top:2px}
+.hdr .badge{background:rgba(255,255,255,.2);color:#fff;font-size:11px;padding:3px 10px;border-radius:20px}
+
+/* TABS */
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px}
+.tab{padding:10px;font-size:14px;font-weight:700;border:none;border-radius:12px;background:#fff;cursor:pointer;color:#888;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.tab.active{background:#1D9E75;color:#fff;box-shadow:0 2px 8px rgba(29,158,117,.35)}
+
+/* CAM BUTTON */
+.cam-btn{width:100%;padding:18px;font-size:18px;font-weight:800;background:linear-gradient(135deg,#1D9E75,#0D7A5A);color:#fff;border:none;border-radius:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:12px;box-shadow:0 4px 16px rgba(29,158,117,.4);letter-spacing:.3px}
+.cam-btn.on{background:linear-gradient(135deg,#e53935,#b71c1c);box-shadow:0 4px 16px rgba(229,57,53,.4)}
+
+/* VIDEO */
+#vw{display:none;position:relative;width:100%;background:#000;border-radius:16px;overflow:hidden;margin-bottom:12px}
 #vw video{width:100%;display:block;max-height:260px;object-fit:cover}
-.sbox{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:200px;height:120px;border:2.5px solid #1D9E75;border-radius:8px}
-.sline{position:absolute;left:5%;right:5%;height:2px;background:#1D9E75;animation:sw 1.8s ease-in-out infinite}
-@keyframes sw{0%,100%{top:15%}50%{top:82%}}
-.hint{position:absolute;bottom:8px;left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,.9)}
-.manual{display:flex;gap:6px;margin-bottom:.75rem}
-.manual input{flex:1;font-size:14px;text-transform:uppercase;padding:10px 12px;border:1px solid #ddd;border-radius:10px;background:#fff}
-.manual button{padding:10px 14px;background:#444;color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer}
-/* tabs */
-.tabs{display:flex;gap:6px;margin-bottom:.75rem}
-.tab{flex:1;padding:8px;font-size:13px;font-weight:600;border:1px solid #ddd;border-radius:10px;background:#fff;cursor:pointer;color:#888}
-.tab.active{background:#1D9E75;color:#fff;border-color:#1D9E75}
-/* log */
-.log-box{background:#fff;border-radius:14px;padding:.75rem;margin-bottom:.75rem}
-.log-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.log-hdr span{font-size:13px;font-weight:600;color:#444}
-.log-hdr .export-btn{padding:5px 10px;font-size:12px;background:#1D9E75;color:#fff;border:none;border-radius:8px;cursor:pointer}
-.log-hdr .clear-btn{padding:5px 10px;font-size:12px;background:#fde8e8;color:#e53935;border:none;border-radius:8px;cursor:pointer}
-.li{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid #f0f0f0}
+.sbox{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:210px;height:130px;border:3px solid #1D9E75;border-radius:10px;box-shadow:0 0 0 2000px rgba(0,0,0,.45)}
+.sline{position:absolute;left:5%;right:5%;height:2px;background:linear-gradient(90deg,transparent,#1D9E75,transparent);animation:sw 1.8s ease-in-out infinite}
+@keyframes sw{0%,100%{top:10%}50%{top:88%}}
+.cam-hint{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:14px;color:#fff;font-weight:600;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+
+/* MANUAL */
+.manual{display:flex;gap:8px;margin-bottom:12px}
+.manual input{flex:1;font-size:16px;text-transform:uppercase;padding:13px 14px;border:2px solid #e0e0e0;border-radius:12px;background:#fff;font-weight:600}
+.manual input:focus{border-color:#1D9E75;outline:none}
+.manual button{padding:13px 16px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:18px;cursor:pointer}
+
+/* TODAY SUMMARY */
+.today-card{background:linear-gradient(135deg,#667eea,#764ba2);border-radius:16px;padding:14px 16px;margin-bottom:12px;display:none}
+.today-card .tc-title{font-size:13px;color:rgba(255,255,255,.8);margin-bottom:10px;font-weight:600}
+.today-card .tc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.today-card .tc-box{background:rgba(255,255,255,.15);border-radius:10px;padding:8px;text-align:center}
+.today-card .tc-val{font-size:18px;font-weight:800;color:#fff}
+.today-card .tc-lbl{font-size:10px;color:rgba(255,255,255,.75);margin-top:2px}
+
+/* LOG */
+.card{background:#fff;border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+.card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.card-hdr .title{font-size:15px;font-weight:700;color:#1a1a1a}
+.btn-sm{padding:7px 12px;font-size:13px;font-weight:700;border:none;border-radius:10px;cursor:pointer}
+.btn-green{background:#e6f9f3;color:#1D9E75}
+.btn-red{background:#fde8e8;color:#e53935}
+.date-group{font-size:12px;font-weight:700;color:#1D9E75;padding:6px 0 4px;border-bottom:1px solid #f0f0f0;margin-bottom:4px}
+.li{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid #f5f5f5}
 .li:last-child{border:none}
-.li-l .li-sku{font-size:11px;font-family:monospace;font-weight:600;color:#1a1a1a}
-.li-l .li-sub{font-size:10px;color:#888;margin-top:1px}
-.li-r{font-size:13px;font-weight:700;color:#1D9E75;white-space:nowrap;margin-left:8px}
-.empty{text-align:center;color:#bbb;font-size:13px;padding:20px 0}
-/* stock tab */
-.stk-box{background:#fff;border-radius:14px;padding:.75rem;margin-bottom:.75rem}
-.stk-search{width:100%;padding:8px 12px;border:1px solid #ddd;border-radius:10px;font-size:13px;margin-bottom:8px}
-.stk-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:12px}
+.li-sku{font-size:13px;font-family:monospace;font-weight:700;color:#1a1a1a}
+.li-sub{font-size:11px;color:#888;margin-top:2px}
+.li-amt{font-size:15px;font-weight:800;color:#1D9E75;white-space:nowrap;margin-left:8px}
+.empty{text-align:center;color:#bbb;font-size:14px;padding:24px 0}
+
+/* STOCK */
+.stk-search{width:100%;padding:12px 14px;border:2px solid #e0e0e0;border-radius:12px;font-size:15px;margin-bottom:10px;background:#fff}
+.stk-search:focus{border-color:#1D9E75;outline:none}
+.stk-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5}
 .stk-row:last-child{border:none}
-.stk-sku{font-family:monospace;font-size:10px;color:#444}
-.stk-info{font-size:10px;color:#888}
-.stk-qty{font-weight:700;min-width:28px;text-align:right}
-.stk-qty.ok{color:#1D9E75}
-.stk-qty.low{color:#e65100}
-.stk-qty.out{color:#e53935}
-/* summary */
-.sum-box{background:#fff;border-radius:14px;padding:.75rem;margin-bottom:.75rem}
-.sum-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
-.sum-row:last-child{border:none;font-weight:700;font-size:15px}
-/* total bar */
-.tot{background:#1D9E75;border-radius:14px;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
-.tot span:first-child{font-size:12px;color:rgba(255,255,255,.8)}
-.tot span:last-child{font-size:18px;font-weight:800;color:#fff}
-/* modal */
-.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:flex-end;justify-content:center}
+.stk-sku{font-family:monospace;font-size:12px;font-weight:700;color:#333}
+.stk-info{font-size:11px;color:#888;margin-top:2px}
+.qty-badge{font-size:15px;font-weight:800;min-width:32px;text-align:center;padding:4px 8px;border-radius:8px}
+.qty-badge.ok{background:#e6f9f3;color:#1D9E75}
+.qty-badge.low{background:#fff3e0;color:#e65100}
+.qty-badge.out{background:#fde8e8;color:#e53935}
+
+/* MODAL */
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;align-items:flex-end;justify-content:center}
 .mbg.show{display:flex}
-.modal{background:#fff;border-radius:20px 20px 0 0;padding:1.5rem 1.25rem 2.5rem;width:100%;max-width:430px;animation:su .22s ease}
-@keyframes su{from{transform:translateY(80px);opacity:0}to{transform:translateY(0);opacity:1}}
-.m-sku{font-size:10px;font-family:monospace;color:#888;margin-bottom:3px}
-.m-info{font-size:16px;font-weight:700;margin-bottom:2px}
-.m-meta{font-size:13px;color:#888;margin-bottom:1rem}
-.m-price{font-size:44px;font-weight:900;color:#1D9E75;text-align:center;margin-bottom:4px}
-.m-plbl{font-size:11px;color:#888;text-align:center;margin-bottom:.75rem}
-.m-stk{display:flex;justify-content:center;margin-bottom:.75rem}
-.pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 14px;border-radius:20px;font-weight:600}
+.modal{background:#fff;border-radius:24px 24px 0 0;padding:20px 20px 40px;width:100%;max-width:430px;animation:su .25s ease}
+@keyframes su{from{transform:translateY(100px);opacity:0}to{transform:translateY(0);opacity:1}}
+.m-handle{width:40px;height:4px;background:#e0e0e0;border-radius:4px;margin:0 auto 16px}
+.m-sku{font-size:11px;font-family:monospace;color:#888;margin-bottom:4px}
+.m-name{font-size:18px;font-weight:800;color:#1a1a1a;margin-bottom:4px}
+.m-meta{font-size:14px;color:#888;margin-bottom:16px}
+.m-price-wrap{background:linear-gradient(135deg,#e6f9f3,#d0f4e8);border-radius:16px;padding:16px;text-align:center;margin-bottom:14px}
+.m-price{font-size:48px;font-weight:900;color:#1D9E75;line-height:1}
+.m-plbl{font-size:12px;color:#1D9E75;margin-top:4px;font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:14px;padding:6px 16px;border-radius:20px;font-weight:700;margin-bottom:14px}
 .pill.ok{background:#e6f9f3;color:#1D9E75}
 .pill.low{background:#fff3e0;color:#e65100}
 .pill.out{background:#fde8e8;color:#e53935}
-.qrow{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:1.25rem}
-.qrow label{font-size:13px;color:#888}
-.qb{width:38px;height:38px;border-radius:50%;font-size:22px;font-weight:700;border:1px solid #ddd;background:#f5f5f5;cursor:pointer}
-.qv{font-size:24px;font-weight:800;min-width:44px;text-align:center}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.b-ok{padding:16px;font-size:16px;font-weight:800;background:#1D9E75;color:#fff;border:none;border-radius:14px;cursor:pointer}
-.b-ok:disabled{opacity:.35;cursor:not-allowed}
-.b-no{padding:16px;font-size:16px;font-weight:800;background:#fde8e8;color:#e53935;border:none;border-radius:14px;cursor:pointer}
-.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);padding:10px 22px;border-radius:14px;font-size:13px;font-weight:700;z-index:1100;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.18)}
-.t-ok{background:#e6f9f3;color:#1D9E75;border:1px solid #1D9E75}
-.t-err{background:#fde8e8;color:#e53935;border:1px solid #e53935}
+.qrow{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px}
+.qrow label{font-size:14px;color:#888;font-weight:600}
+.qb{width:44px;height:44px;border-radius:50%;font-size:24px;font-weight:800;border:2px solid #e0e0e0;background:#f5f5f5;cursor:pointer;color:#1a1a1a;display:flex;align-items:center;justify-content:center}
+.qv{font-size:28px;font-weight:900;min-width:48px;text-align:center;color:#1a1a1a}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.b-ok{padding:17px;font-size:17px;font-weight:800;background:linear-gradient(135deg,#1D9E75,#0D7A5A);color:#fff;border:none;border-radius:16px;cursor:pointer;box-shadow:0 4px 12px rgba(29,158,117,.4)}
+.b-ok:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+.b-no{padding:17px;font-size:17px;font-weight:800;background:#fde8e8;color:#e53935;border:none;border-radius:16px;cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:16px;font-size:15px;font-weight:700;z-index:1100;display:none;white-space:nowrap;box-shadow:0 6px 24px rgba(0,0,0,.18);max-width:90vw;text-align:center}
+.t-ok{background:#1D9E75;color:#fff}
+.t-err{background:#e53935;color:#fff}
 </style>
 </head>
 <body>
 <div class="app">
-  <h2>🛍 POS ສະແກນ & ຂາຍ <span style="font-size:11px;color:#888;font-weight:400">135 SKU</span></h2>
+  <!-- HEADER -->
+  <div class="hdr">
+    <div>
+      <div class="hdr h2">🛍 POS ສະແກນ & ຂາຍ</div>
+      <div class="sub">Thời Trang Thái Hòa</div>
+    </div>
+    <div class="badge">135 SKU</div>
+  </div>
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="showTab('sell')">ຂາຍ</button>
-    <button class="tab" onclick="showTab('log')">ປະຫວັດ</button>
-    <button class="tab" onclick="showTab('stock')">ສະຕັອກ</button>
+    <button class="tab active" id="t0" onclick="showTab(0)">📷 ຂາຍ</button>
+    <button class="tab" id="t1" onclick="showTab(1)">📋 ປະຫວັດ</button>
+    <button class="tab" id="t2" onclick="showTab(2)">📦 ສະຕັອກ</button>
   </div>
 
-  <!-- SELL TAB -->
-  <div id="tab-sell">
+  <!-- TAB 0: SELL -->
+  <div id="tab0">
     <button class="cam-btn" id="cb" onclick="toggleCam()">📷 ກົດນີ້ເພື່ອສ່ອງ Barcode</button>
     <div id="vw">
       <video id="vid" autoplay playsinline muted></video>
       <div class="sbox"><div class="sline"></div></div>
-      <div class="hint">ສ່ອງ barcode ເຂົ້າກ່ອບສີຂຽວ</div>
+      <div class="cam-hint">ສ່ອງ barcode ເຂົ້າກ່ອບສີຂຽວ</div>
     </div>
     <div class="manual">
-      <input id="si" type="text" placeholder="ຫຼື ພິມ SKU..." autocomplete="off"/>
+      <input id="si" type="text" placeholder="ຫຼື ພິມ SKU ດ້ວຍມື..." autocomplete="off"/>
       <button onclick="doLookup()">🔍</button>
     </div>
-    <div id="today-sum" style="display:none"></div>
-  </div>
-
-  <!-- LOG TAB -->
-  <div id="tab-log" style="display:none">
-    <div class="log-box">
-      <div class="log-hdr">
-        <span id="log-title">ປະຫວັດການຂາຍ</span>
-        <div style="display:flex;gap:6px">
-          <button class="export-btn" onclick="exportCSV()">📥 Export CSV</button>
-          <button class="clear-btn" onclick="clearLog()">🗑 ລ້າງ</button>
-        </div>
+    <div id="today-card" class="today-card">
+      <div class="tc-title">📊 ຍອດຂາຍວັນນີ້</div>
+      <div class="tc-grid">
+        <div class="tc-box"><div class="tc-val" id="tc-items">0</div><div class="tc-lbl">ລາຍການ</div></div>
+        <div class="tc-box"><div class="tc-val" id="tc-qty">0</div><div class="tc-lbl">ຊິ້ນ</div></div>
+        <div class="tc-box"><div class="tc-val" id="tc-amt">0</div><div class="tc-lbl">ກີບ (ພັນ)</div></div>
       </div>
-      <div id="ll"></div>
     </div>
   </div>
 
-  <!-- STOCK TAB -->
-  <div id="tab-stock" style="display:none">
-    <div class="stk-box">
-      <input class="stk-search" type="text" placeholder="ຄົ້ນ SKU / ສີ..." oninput="renderStock(this.value)"/>
+  <!-- TAB 1: LOG -->
+  <div id="tab1" style="display:none">
+    <div class="card">
+      <div class="card-hdr">
+        <div class="title" id="log-title">ປະຫວັດການຂາຍ</div>
+        <div style="display:flex;gap:6px">
+          <button class="btn-sm btn-green" onclick="exportCSV()">📥 CSV</button>
+          <button class="btn-sm btn-red" onclick="clearLog()">🗑</button>
+        </div>
+      </div>
+      <div id="ll"><div class="empty">ຍັງບໍ່ມີປະຫວັດ</div></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: STOCK -->
+  <div id="tab2" style="display:none">
+    <div class="card">
+      <input class="stk-search" type="text" placeholder="🔍 ຄົ້ນ SKU / ສີ..." oninput="renderStock(this.value)"/>
       <div id="stk-list"></div>
     </div>
   </div>
 </div>
 
 <!-- MODAL -->
-<div class="mbg" id="mb">
+<div class="mbg" id="mb" onclick="if(event.target===this)doCancel()">
   <div class="modal">
+    <div class="m-handle"></div>
     <div class="m-sku" id="msku"></div>
-    <div class="m-info" id="minf"></div>
-    <div class="m-meta" id="mmet"></div>
-    <div class="m-price" id="mprc"></div>
-    <div class="m-plbl">ລາຄາຂາຍ (ກີບ)</div>
-    <div class="m-stk"><span class="pill" id="mstk"></span></div>
+    <div class="m-name" id="mname"></div>
+    <div class="m-meta" id="mmeta"></div>
+    <div class="m-price-wrap">
+      <div class="m-price" id="mprc"></div>
+      <div class="m-plbl">ລາຄາຂາຍ (ກີບ)</div>
+    </div>
+    <div style="text-align:center"><span class="pill" id="mstk"></span></div>
     <div class="qrow">
       <label>ຈຳນວນ</label>
       <button class="qb" onclick="adj(-1)">−</button>
@@ -157,7 +195,6 @@ h2{font-size:17px;font-weight:700;margin-bottom:.75rem;display:flex;align-items:
 
 <script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
 <script>
-// ===== STOCK DATA =====
 const RAW=[
   ["24ASW-251-L065","ສີຟ້າ","Female","XXL",265000,5],["24ASW-251-L064","ສີຟ້າ","Female","XL",265000,5],
   ["24ASW-251-L063","ສີຟ້າ","Female","L",265000,5],["24ASW-251-L062","ສີຟ້າ","Female","M",265000,5],
@@ -229,50 +266,31 @@ const RAW=[
   ["23ASM-994-L062","Blue","Male","M",300000,2],
 ];
 
-// ===== localStorage KEYS =====
-const KEY_STOCK='pos_stock_v1';
-const KEY_LOG='pos_log_v1';
-
-// Load or init stock
-function initStock(){
-  const saved=localStorage.getItem(KEY_STOCK);
-  if(saved){try{return JSON.parse(saved);}catch(e){}}
-  const s={};
-  RAW.forEach(([sk,c,g,sz,p,q])=>{s[sk]={sku:sk,color:c,gender:g,size:sz,sell:p,rem:q};});
-  localStorage.setItem(KEY_STOCK,JSON.stringify(s));
-  return s;
-}
-function saveStock(){localStorage.setItem(KEY_STOCK,JSON.stringify(stock));}
-
-// Load or init log
-function initLog(){
-  const saved=localStorage.getItem(KEY_LOG);
-  if(saved){try{return JSON.parse(saved);}catch(e){}}
-  return [];
-}
-function saveLog(){localStorage.setItem(KEY_LOG,JSON.stringify(salesLog));}
-
-let stock=initStock();
-let salesLog=initLog();
-let cur=null,qty=1,cr=null,scanning=false,lc='',lt=0;
-let curTab='sell';
-
+const KS='pos_stock_v2',KL='pos_log_v2';
 const fmt=n=>n.toLocaleString();
 
-// ===== TABS =====
-function showTab(t){
-  curTab=t;
-  ['sell','log','stock'].forEach(id=>{
-    document.getElementById('tab-'+id).style.display=(id===t?'block':'none');
+function initStock(){
+  try{const s=localStorage.getItem(KS);if(s)return JSON.parse(s);}catch(e){}
+  const s={};RAW.forEach(([sk,c,g,sz,p,q])=>{s[sk]={sku:sk,color:c,gender:g,size:sz,sell:p,rem:q};});
+  localStorage.setItem(KS,JSON.stringify(s));return s;
+}
+function saveStock(){localStorage.setItem(KS,JSON.stringify(stock));}
+function initLog(){try{const l=localStorage.getItem(KL);if(l)return JSON.parse(l);}catch(e){}return[];}
+function saveLog(){localStorage.setItem(KL,JSON.stringify(log));}
+
+let stock=initStock(),log=initLog(),cur=null,qty=1,cr=null,scanning=false,lc='',lt=0;
+
+// TABS
+function showTab(i){
+  [0,1,2].forEach(j=>{
+    document.getElementById('tab'+j).style.display=j===i?'block':'none';
+    document.getElementById('t'+j).classList.toggle('active',j===i);
   });
-  document.querySelectorAll('.tab').forEach((b,i)=>{
-    b.classList.toggle('active',['sell','log','stock'][i]===t);
-  });
-  if(t==='log')renderLog();
-  if(t==='stock')renderStock('');
+  if(i===1)renderLog();
+  if(i===2)renderStock('');
 }
 
-// ===== CAMERA =====
+// CAMERA
 async function toggleCam(){
   if(scanning){stopCam();return;}
   const btn=document.getElementById('cb');
@@ -283,14 +301,12 @@ async function toggleCam(){
     const back=devs.find(d=>d.label.toLowerCase().match(/back|rear|environment/));
     const id=(back||devs[devs.length-1]||devs[0])?.deviceId;
     document.getElementById('vw').style.display='block';
-    btn.textContent='🔴 ປິດກ້ອງ';btn.classList.add('on');
-    scanning=true;
+    btn.textContent='🔴 ປິດກ້ອງ';btn.classList.add('on');scanning=true;
     await cr.decodeFromVideoDevice(id||null,'vid',onScan);
-  }catch(e){showToast('ເປີດກ້ອງບໍ່ໄດ້','err');stopCam();}
+  }catch(e){showToast('ເປີດກ້ອງບໍ່ໄດ້: '+e.message,'err');stopCam();}
 }
 function stopCam(){
-  if(cr){try{cr.reset();}catch(e){}}
-  cr=null;scanning=false;
+  if(cr){try{cr.reset();}catch(e){}}cr=null;scanning=false;
   document.getElementById('vw').style.display='none';
   const btn=document.getElementById('cb');
   btn.textContent='📷 ກົດນີ້ເພື່ອສ່ອງ Barcode';btn.classList.remove('on');
@@ -309,146 +325,96 @@ function doLookup(){
   showModal(v);document.getElementById('si').value='';
 }
 
-// ===== MODAL =====
+// MODAL
 function showModal(sku){
-  const it=stock[sku];
-  if(!it){showToast('ບໍ່ພົບ: '+sku,'err');return;}
+  const it=stock[sku];if(!it){showToast('ບໍ່ພົບ: '+sku,'err');return;}
   cur=sku;qty=1;
   document.getElementById('msku').textContent=sku;
-  document.getElementById('minf').textContent=it.color+' — '+it.gender;
-  document.getElementById('mmet').textContent='Size: '+it.size;
+  document.getElementById('mname').textContent=it.color+' — '+it.gender;
+  document.getElementById('mmeta').textContent='📏 Size: '+it.size;
   document.getElementById('mprc').textContent=fmt(it.sell);
   document.getElementById('mqv').textContent='1';
-  const sp=document.getElementById('mstk');const r=it.rem;
-  if(r===0){sp.className='pill out';sp.textContent='⚠ ໝົດສະຕັອກ';}
+  const sp=document.getElementById('mstk'),r=it.rem;
+  if(r===0){sp.className='pill out';sp.textContent='⚠️ ໝົດສະຕັອກ';}
   else if(r<=3){sp.className='pill low';sp.textContent='⚡ ໃກ້ໝົດ — ຄົງ '+r+' ອັນ';}
-  else{sp.className='pill ok';sp.textContent='✓ ຄົງ '+r+' ອັນ';}
+  else{sp.className='pill ok';sp.textContent='✅ ຄົງ '+r+' ອັນ';}
   document.getElementById('bok').disabled=(r===0);
   document.getElementById('mb').classList.add('show');
 }
 function adj(d){if(!cur)return;qty=Math.max(1,Math.min(stock[cur].rem,qty+d));document.getElementById('mqv').textContent=qty;}
 function doCancel(){document.getElementById('mb').classList.remove('show');cur=null;qty=1;lc='';}
-
 function doSell(){
-  if(!cur)return;
-  const it=stock[cur];
+  if(!cur)return;const it=stock[cur];
   if(qty>it.rem){showToast('ສະຕັອກບໍ່ພໍ!','err');return;}
-  // ຫັກສະຕັອກ
-  it.rem-=qty;
-  saveStock();
-  // ບັນທຶກ log
+  it.rem-=qty;saveStock();
   const now=new Date();
-  const entry={
-    sku:cur,color:it.color,gender:it.gender,size:it.size,
-    qty,price:it.sell,amt:it.sell*qty,
-    date:now.toLocaleDateString('lo'),
-    time:now.toLocaleTimeString('lo',{hour:'2-digit',minute:'2-digit'}),
-    ts:now.toISOString()
-  };
-  salesLog.unshift(entry);
+  log.unshift({sku:cur,color:it.color,gender:it.gender,size:it.size,qty,price:it.sell,amt:it.sell*qty,
+    date:now.toLocaleDateString('th'),time:now.toLocaleTimeString('lo',{hour:'2-digit',minute:'2-digit'}),ts:now.toISOString()});
   saveLog();
   document.getElementById('mb').classList.remove('show');
-  beepOk();
-  showToast('✓ ຂາຍ x'+qty+' = '+fmt(it.sell*qty)+' ກີບ — ບັນທຶກແລ້ວ ✅','ok');
-  cur=null;qty=1;lc='';
-  renderTodaySummary();
+  beepOk();showToast('✅ ຂາຍ x'+qty+' = '+fmt(it.sell*qty)+' ກີບ','ok');
+  cur=null;qty=1;lc='';renderToday();
 }
 
-// ===== TODAY SUMMARY =====
-function renderTodaySummary(){
-  const today=new Date().toLocaleDateString('lo');
-  const todayItems=salesLog.filter(s=>s.date===today);
-  const div=document.getElementById('today-sum');
-  if(!todayItems.length){div.style.display='none';return;}
-  const total=todayItems.reduce((s,i)=>s+i.amt,0);
-  const count=todayItems.reduce((s,i)=>s+i.qty,0);
-  div.style.display='block';
-  div.innerHTML=`<div class="sum-box">
-    <div style="font-size:13px;font-weight:600;color:#444;margin-bottom:8px">📊 ຍອດຂາຍວັນນີ້</div>
-    <div class="sum-row"><span>ຈຳນວນທີ່ຂາຍ</span><span>${count} ອັນ</span></div>
-    <div class="sum-row"><span>ຈຳນວນ SKU</span><span>${todayItems.length} ລາຍການ</span></div>
-    <div class="sum-row"><span>ຍອດລວມ</span><span style="color:#1D9E75">${fmt(total)} ກີບ</span></div>
-  </div>`;
+// TODAY
+function renderToday(){
+  const today=new Date().toLocaleDateString('th');
+  const items=log.filter(s=>s.date===today);
+  const card=document.getElementById('today-card');
+  if(!items.length){card.style.display='none';return;}
+  card.style.display='block';
+  document.getElementById('tc-items').textContent=items.length;
+  document.getElementById('tc-qty').textContent=items.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('tc-amt').textContent=Math.round(items.reduce((s,i)=>s+i.amt,0)/1000);
 }
 
-// ===== LOG TAB =====
+// LOG
 function renderLog(){
   const ll=document.getElementById('ll');
-  if(!salesLog.length){ll.innerHTML='<div class="empty">ຍັງບໍ່ມີປະຫວັດການຂາຍ</div>';return;}
-  // group by date
+  if(!log.length){ll.innerHTML='<div class="empty">ຍັງບໍ່ມີປະຫວັດ</div>';return;}
   const groups={};
-  salesLog.forEach(s=>{
-    if(!groups[s.date])groups[s.date]=[];
-    groups[s.date].push(s);
-  });
+  log.forEach(s=>{if(!groups[s.date])groups[s.date]=[];groups[s.date].push(s);});
   let html='';
   Object.entries(groups).forEach(([date,items])=>{
     const tot=items.reduce((s,i)=>s+i.amt,0);
-    html+=`<div style="font-size:12px;font-weight:700;color:#1D9E75;padding:6px 0 4px">${date} — ${fmt(tot)} ກີບ</div>`;
+    html+=`<div class="date-group">${date} — ${fmt(tot)} ກີບ</div>`;
     items.forEach(s=>{
-      html+=`<div class="li">
-        <div class="li-l">
-          <div class="li-sku">${s.sku}</div>
-          <div class="li-sub">${s.color}·${s.size}·x${s.qty}·${s.time}</div>
-        </div>
-        <div class="li-r">+${fmt(s.amt)}</div>
-      </div>`;
+      html+=`<div class="li"><div><div class="li-sku">${s.sku}</div><div class="li-sub">${s.color} · ${s.size} · x${s.qty} · ${s.time}</div></div><div class="li-amt">+${fmt(s.amt)}</div></div>`;
     });
   });
   ll.innerHTML=html;
-  // update title
-  const total=salesLog.reduce((s,i)=>s+i.amt,0);
-  document.getElementById('log-title').textContent=`ປະຫວັດ (${fmt(total)} ກີບ)`;
+  const tot=log.reduce((s,i)=>s+i.amt,0);
+  document.getElementById('log-title').textContent=`ປະຫວັດ — ${fmt(tot)} ກີບ`;
 }
-
-// ===== EXPORT CSV =====
 function exportCSV(){
-  if(!salesLog.length){showToast('ບໍ່ມີຂໍ້ມູນ','err');return;}
+  if(!log.length){showToast('ບໍ່ມີຂໍ້ມູນ','err');return;}
   const rows=[['Date','Time','SKU','Color','Gender','Size','Qty','Price','Amount']];
-  salesLog.forEach(s=>rows.push([s.date,s.time,s.sku,s.color,s.gender,s.size,s.qty,s.price,s.amt]));
-  const csv=rows.map(r=>r.join(',')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='sales_'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click();URL.revokeObjectURL(url);
-  showToast('Export CSV ສຳເລັດ!','ok');
+  log.forEach(s=>rows.push([s.date,s.time,s.sku,s.color,s.gender,s.size,s.qty,s.price,s.amt]));
+  const blob=new Blob(['\uFEFF'+rows.map(r=>r.join(',')).join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='sales_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('Export CSV ສຳເລັດ! ✅','ok');
 }
+function clearLog(){if(!confirm('ລ້າງປະຫວັດທັງໝົດ?'))return;log=[];saveLog();renderLog();showToast('ລ້າງແລ້ວ','ok');}
 
-// ===== CLEAR LOG =====
-function clearLog(){
-  if(!confirm('ລ້າງປະຫວັດທັງໝົດ?'))return;
-  salesLog=[];saveLog();renderLog();
-  showToast('ລ້າງແລ້ວ','ok');
-}
-
-// ===== STOCK TAB =====
+// STOCK
 function renderStock(q){
-  const items=Object.values(stock).filter(i=>
-    !q||i.sku.toLowerCase().includes(q.toLowerCase())||i.color.toLowerCase().includes(q.toLowerCase())
-  );
+  const items=Object.values(stock).filter(i=>!q||i.sku.toLowerCase().includes(q.toLowerCase())||i.color.toLowerCase().includes(q.toLowerCase()));
   const div=document.getElementById('stk-list');
   if(!items.length){div.innerHTML='<div class="empty">ບໍ່ພົບ</div>';return;}
   div.innerHTML=items.map(i=>{
     const cls=i.rem===0?'out':i.rem<=3?'low':'ok';
-    return`<div class="stk-row">
-      <div><div class="stk-sku">${i.sku}</div><div class="stk-info">${i.color}·${i.gender}·${i.size}·${fmt(i.sell)}ກີບ</div></div>
-      <div class="stk-qty ${cls}">${i.rem}</div>
-    </div>`;
+    return`<div class="stk-row"><div><div class="stk-sku">${i.sku}</div><div class="stk-info">${i.color} · ${i.gender} · ${i.size} · ${fmt(i.sell)} ກີບ</div></div><div class="qty-badge ${cls}">${i.rem}</div></div>`;
   }).join('');
 }
 
-// ===== AUDIO =====
+// AUDIO
 function beep(){try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.12);o.start();o.stop(c.currentTime+0.12);}catch(e){}}
 function beepOk(){try{const c=new(window.AudioContext||window.webkitAudioContext)();[660,880].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.setValueAtTime(0.25,c.currentTime+i*.12);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+i*.12+.15);o.start(c.currentTime+i*.12);o.stop(c.currentTime+i*.12+.15);});}catch(e){}}
-
-// ===== TOAST =====
 function showToast(msg,type){const el=document.getElementById('tst');el.textContent=msg;el.className='toast '+(type==='ok'?'t-ok':'t-err');el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
 
-// ===== INIT =====
 document.getElementById('si').addEventListener('keydown',e=>{if(e.key==='Enter')doLookup();});
-document.getElementById('mb').addEventListener('click',function(e){if(e.target===this)doCancel();});
-renderTodaySummary();
+renderToday();
 </script>
 </body>
 </html>
