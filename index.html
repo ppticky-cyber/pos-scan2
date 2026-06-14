@@ -1,0 +1,487 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--color-background-secondary)}
+.app{max-width:420px;margin:0 auto;padding:.75rem}
+
+/* header */
+.hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.hdr-left{display:flex;align-items:center;gap:8px}
+.hdr h2{font-size:16px;font-weight:600;color:var(--color-text-primary)}
+.hdr-right{display:flex;gap:6px}
+.icon-btn{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 10px;cursor:pointer;font-size:12px;color:var(--color-text-secondary);display:flex;align-items:center;gap:4px}
+.icon-btn:hover{background:var(--color-background-secondary)}
+.icon-btn.active{background:var(--color-background-danger);color:var(--color-text-danger);border-color:var(--color-border-danger)}
+
+/* camera */
+.cam-wrap{position:relative;width:100%;background:#000;border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:.75rem;display:none}
+.cam-wrap video{width:100%;display:block;max-height:260px;object-fit:cover}
+.scan-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.scan-box{width:200px;height:120px;border:2.5px solid #1D9E75;border-radius:8px;position:relative}
+.scan-box::before{content:'';position:absolute;left:5%;right:5%;top:50%;height:2px;background:linear-gradient(90deg,transparent,#1D9E75,transparent);animation:sweep 1.8s ease-in-out infinite}
+@keyframes sweep{0%,100%{top:15%}50%{top:82%}}
+.cam-hint{position:absolute;bottom:10px;left:0;right:0;text-align:center;font-size:12px;color:rgba(255,255,255,0.85);text-shadow:0 1px 3px rgba(0,0,0,.5)}
+
+/* scan start screen */
+.start-screen{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:2rem 1.5rem;text-align:center;margin-bottom:.75rem}
+.start-icon{font-size:48px;margin-bottom:.75rem}
+.start-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:.5rem}
+.start-sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
+.scan-big-btn{width:100%;padding:14px;font-size:15px;font-weight:600;background:var(--color-background-success);color:var(--color-text-success);border:1.5px solid var(--color-border-success);border-radius:var(--border-radius-lg);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.scan-big-btn:hover{opacity:.88}
+
+/* manual input */
+.manual-row{display:flex;gap:6px;margin-bottom:.75rem}
+.manual-row input{flex:1;font-size:14px;letter-spacing:.5px;text-transform:uppercase;border-radius:var(--border-radius-md)}
+.manual-row button{white-space:nowrap;font-size:13px}
+
+/* modal overlay */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:100;align-items:flex-end;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg) var(--border-radius-lg) 0 0;padding:1.5rem 1.25rem 2rem;width:100%;max-width:420px;animation:slideup .25s ease}
+@keyframes slideup{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-sku{font-size:11px;font-family:var(--font-mono);color:var(--color-text-secondary);margin-bottom:4px}
+.modal-name{font-size:15px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px}
+.modal-meta{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
+.price-big{font-size:36px;font-weight:700;color:var(--color-text-success);text-align:center;margin-bottom:.25rem}
+.price-sub{font-size:12px;color:var(--color-text-secondary);text-align:center;margin-bottom:1.25rem}
+.stock-pill{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:20px;margin-bottom:1.25rem}
+.stock-pill.ok{background:var(--color-background-success);color:var(--color-text-success)}
+.stock-pill.low{background:var(--color-background-warning);color:var(--color-text-warning)}
+.stock-pill.out{background:var(--color-background-danger);color:var(--color-text-danger)}
+.qty-sel{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:1.25rem}
+.qty-sel label{font-size:13px;color:var(--color-text-secondary)}
+.qty-sel .qbtn{width:32px;height:32px;border-radius:50%;font-size:18px;font-weight:600;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--color-text-primary)}
+.qty-sel .qval{font-size:20px;font-weight:700;color:var(--color-text-primary);min-width:36px;text-align:center}
+.modal-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-ok{padding:14px;font-size:15px;font-weight:700;background:var(--color-background-success);color:var(--color-text-success);border:1.5px solid var(--color-border-success);border-radius:var(--border-radius-lg);cursor:pointer}
+.btn-ok:hover{opacity:.88}
+.btn-ok:disabled{opacity:.4;cursor:not-allowed}
+.btn-cancel{padding:14px;font-size:15px;font-weight:700;background:var(--color-background-danger);color:var(--color-text-danger);border:1.5px solid var(--color-border-danger);border-radius:var(--border-radius-lg);cursor:pointer}
+.btn-cancel:hover{opacity:.88}
+
+/* toast */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:var(--border-radius-lg);font-size:13px;font-weight:500;z-index:200;display:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.toast.ok-t{background:var(--color-background-success);color:var(--color-text-success);border:1px solid var(--color-border-success)}
+.toast.err-t{background:var(--color-background-danger);color:var(--color-text-danger);border:1px solid var(--color-border-danger)}
+
+/* sold log */
+.log-wrap{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:1rem;margin-bottom:.75rem}
+.log-wrap h3{font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:8px;display:flex;justify-content:space-between}
+.log-wrap h3 button{font-size:11px;color:var(--color-text-danger);background:none;border:none;cursor:pointer}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:12px}
+.log-item:last-child{border-bottom:none}
+.log-sku{font-family:var(--font-mono);font-size:11px;color:var(--color-text-primary)}
+.log-detail{font-size:11px;color:var(--color-text-secondary)}
+.log-amt{font-size:13px;font-weight:600;color:var(--color-text-success)}
+.total-bar{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:.75rem 1rem;display:flex;justify-content:space-between;align-items:center}
+.total-bar .tl{font-size:12px;color:var(--color-text-secondary)}
+.total-bar .tv{font-size:18px;font-weight:700;color:var(--color-text-primary)}
+</style>
+
+<div class="app">
+  <div class="hdr">
+    <div class="hdr-left">
+      <i class="ti ti-barcode" style="font-size:20px;color:var(--color-text-secondary)"></i>
+      <h2>ສະແກນ & ຂາຍ</h2>
+    </div>
+    <div class="hdr-right">
+      <button class="icon-btn" id="cam-toggle" onclick="toggleCam()">
+        <i class="ti ti-camera"></i> ກ້ອງ
+      </button>
+    </div>
+  </div>
+
+  <!-- Camera -->
+  <div class="cam-wrap" id="cam-wrap">
+    <video id="vid" autoplay playsinline muted></video>
+    <div class="scan-overlay"><div class="scan-box"></div></div>
+    <div class="cam-hint">ສ່ອງ barcode ເຂົ້າກ່ອບສີຂຽວ</div>
+  </div>
+
+  <!-- Start screen (shown when cam off) -->
+  <div class="start-screen" id="start-screen">
+    <div class="start-icon">📷</div>
+    <div class="start-title">ກົດ "ກ້ອງ" ເພື່ອເລີ່ມສະແກນ</div>
+    <div class="start-sub">ຫຼື ພິມ SKU ດ້ວຍມືລຸ່ມນີ້</div>
+    <button class="scan-big-btn" onclick="toggleCam()">
+      <i class="ti ti-camera"></i> ເປີດກ້ອງສະແກນ
+    </button>
+  </div>
+
+  <!-- Manual input -->
+  <div class="manual-row">
+    <input type="text" id="sku-in" placeholder="ພິມ SKU..." autocomplete="off"/>
+    <button onclick="lookupManual()"><i class="ti ti-search"></i> ຄົ້ນ</button>
+  </div>
+
+  <!-- Sold log -->
+  <div class="log-wrap" id="log-wrap" style="display:none">
+    <h3>ລາຍການຂາຍວັນນີ້ <button onclick="clearLog()"><i class="ti ti-trash"></i> ລ້າງ</button></h3>
+    <div id="log-list"></div>
+  </div>
+  <div class="total-bar" id="total-bar" style="display:none">
+    <span class="tl">ຍອດລວມວັນນີ້</span>
+    <span class="tv" id="total-val">0 ກີບ</span>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-sku" id="m-sku"></div>
+    <div class="modal-name" id="m-name"></div>
+    <div class="modal-meta" id="m-meta"></div>
+    <div class="price-big" id="m-price"></div>
+    <div class="price-sub">ລາຄາຂາຍ (ກີບ)</div>
+    <div style="display:flex;justify-content:center;margin-bottom:1rem">
+      <span class="stock-pill" id="m-stock"></span>
+    </div>
+    <div class="qty-sel">
+      <label>ຈຳນວນ:</label>
+      <button class="qbtn" onclick="adjQty(-1)">−</button>
+      <div class="qval" id="m-qty">1</div>
+      <button class="qbtn" onclick="adjQty(1)">+</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="cancelSale()">✕ Cancel</button>
+      <button class="btn-ok" id="btn-ok" onclick="confirmSale()">✓ OK Sold</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script src="https://unpkg.com/@zxing/library@0.18.6/umd/index.min.js"></script>
+<script>
+// ===== ALL 135 SKU =====
+const RAW=[
+  ["24ASW-251-L065","ສີຟ້າ","Female","XXL",265000],
+  ["24ASW-251-L064","ສີຟ້າ","Female","XL",265000],
+  ["24ASW-251-L063","ສີຟ້າ","Female","L",265000],
+  ["24ASW-251-L062","ສີຟ້າ","Female","M",265000],
+  ["24ASW-251-G105","ສີຂຽວ","Female","XXL",265000],
+  ["24ASW-251-G104","ສີຂຽວ","Female","XL",265000],
+  ["24ASW-251-G103","ສີຂຽວ","Female","L",265000],
+  ["24ASW-251-G102","ສີຂຽວ","Female","M",265000],
+  ["24ASW-251-G101","ສີຂຽວ","Female","S",265000],
+  ["24ASW-251-P115","ສີບົວ","Female","XXL",265000],
+  ["24ASW-251-P114","ສີບົວ","Female","XL",265000],
+  ["24ASW-251-P113","ສີບົວ","Female","L",265000],
+  ["24ASW-251-P112","ສີບົວ","Female","M",265000],
+  ["24ASW-251-P111","ສີບົວ","Female","S",265000],
+  ["24ASW-250-P125","ສີບົວ","Female","XXL",230000],
+  ["24ASW-250-P124","ສີບົວ","Female","XL",230000],
+  ["24ASW-250-P123","ສີບົວ","Female","L",230000],
+  ["24ASW-250-P122","ສີບົວ","Female","M",230000],
+  ["24ASW-250-P121","ສີບົວ","Female","S",230000],
+  ["24ASW-250-V115","ສີມ່ວງ","Female","XXL",230000],
+  ["24ASW-250-V114","ສີມ່ວງ","Female","XL",230000],
+  ["24ASW-250-V113","ສີມ່ວງ","Female","L",230000],
+  ["24ASW-250-V112","ສີມ່ວງ","Female","M",230000],
+  ["24ASW-250-V111","ສີມ່ວງ","Female","S",230000],
+  ["ASW0101-R05-B085","ສີດຳ","Female","XXL",220000],
+  ["ASW0101-R05-B084","ສີດຳ","Female","XL",220000],
+  ["ASW0101-R05-B083","ສີດຳ","Female","L",220000],
+  ["ASW0101-R05-B082","ສີດຳ","Female","M",220000],
+  ["ASW0101-R05-B081","ສີດຳ","Female","S",220000],
+  ["ASW0101-R05-W015","ສີຂາວ","Female","XXL",220000],
+  ["ASW0101-R05-W014","ສີຂາວ","Female","XL",220000],
+  ["ASW0101-R05-W013","ສີຂາວ","Female","L",220000],
+  ["ASW0101-R05-W011","ສີຂາວ","Female","S",220000],
+  ["ASW0101-R10-B085","ສີດຳ","Female","XXL",230000],
+  ["ASW0101-R10-B084","ສີດຳ","Female","XL",230000],
+  ["ASW0101-R10-B083","ສີດຳ","Female","L",230000],
+  ["ASW0101-R10-B082","ສີດຳ","Female","M",230000],
+  ["ASW0101-R10-B081","ສີດຳ","Female","S",230000],
+  ["ASW0101-R10-W015","ສີຂາວ","Female","XXL",230000],
+  ["ASW0101-R10-W014","ສີຂາວ","Female","XL",230000],
+  ["ASW0101-R10-W013","ສີຂາວ","Female","L",230000],
+  ["ASW0101-R10-W012","ສີຂາວ","Female","M",230000],
+  ["ASW0101-R10-W011","ສີຂາວ","Female","S",230000],
+  ["ASW0101-R01-P015","ສີບົວ","Female","XXL",200000],
+  ["ASW0101-R01-P014","ສີບົວ","Female","XL",200000],
+  ["ASW0101-R01-P013","ສີບົວ","Female","L",200000],
+  ["ASW0101-R01-P012","ສີບົວ","Female","M",200000],
+  ["ASW0101-R01-P011","ສີບົວ","Female","S",200000],
+  ["ASW0101-R01-B055","ສີດຳ","Female","XXL",200000],
+  ["ASW0101-R01-B054","ສີດຳ","Female","XL",200000],
+  ["ASW0101-R01-B053","ສີດຳ","Female","L",200000],
+  ["ASW0101-R01-B052","ສີດຳ","Female","M",200000],
+  ["ASW0101-R01-B051","ສີດຳ","Female","S",200000],
+  ["ASW0101-R01-B085","ສີດຳ","Female","XXL",200000],
+  ["ASW0101-R01-B084","ສີດຳ","Female","XL",200000],
+  ["ASW0101-R01-B083","ສີດຳ","Female","L",200000],
+  ["ASW0101-R01-B082","ສີດຳ","Female","M",200000],
+  ["ASW0101-R01-B081","ສີດຳ","Female","S",200000],
+  ["ASW0101-R01-W015","ສີຂາວ","Female","XXL",200000],
+  ["ASW0101-R01-W014","ສີຂາວ","Female","XL",200000],
+  ["ASW0101-R01-W013","ສີຂາວ","Female","L",200000],
+  ["ASW0101-R01-W012","ສີຂາວ","Female","M",200000],
+  ["ASW0101-R01-W011","ສີຂາວ","Female","S",200000],
+  ["ASW0101-R09-K011","Cream","Female","S",230000],
+  ["ASW0101-R09-K012","Cream","Female","M",230000],
+  ["ASW0101-R09-K013","Cream","Female","L",230000],
+  ["23ASW-102-L061","Blue","Female","S",230000],
+  ["23ASW-102-L062","Blue","Female","M",230000],
+  ["23ASW-102-L063","Blue","Female","L",230000],
+  ["23ASW-102-Y071","Yellow","Female","S",230000],
+  ["23ASW-102-Y072","Yellow","Female","M",230000],
+  ["23ASW-102-Y073","Yellow","Female","L",230000],
+  ["24ASW-249-B011","White","Female","S",240000],
+  ["24ASW-249-B012","White","Female","M",240000],
+  ["24ASW-249-B014","White","Female","XL",240000],
+  ["24ASW-249-L071","Blue","Female","S",240000],
+  ["24ASW-249-L072","Blue","Female","M",240000],
+  ["24ASW-249-L074","Blue","Female","XL",240000],
+  ["24ASW-249-P121","Pink Pastel","Female","S",240000],
+  ["24ASW-249-P122","Pink Pastel","Female","M",240000],
+  ["24ASW-249-P123","Pink Pastel","Female","L",240000],
+  ["24ASW-249-P124","Pink Pastel","Female","XL",240000],
+  ["24ASW-249-V111","Purple Pastel","Female","S",240000],
+  ["24ASW-249-V112","Purple Pastel","Female","M",240000],
+  ["24ASW-249-V113","Purple Pastel","Female","L",240000],
+  ["24ASW-249-V114","Purple Pastel","Female","XL",240000],
+  ["25ASW-266-G071","Green","Female","S",250000],
+  ["25ASW-266-G072","Green","Female","M",250000],
+  ["25ASW-266-G073","Green","Female","L",250000],
+  ["25ASW-266-G074","Green","Female","XL",250000],
+  ["25ASW-266-G075","Green","Female","XXL",250000],
+  ["25ASW-266-N111","Light Blue","Female","S",250000],
+  ["25ASW-266-N112","Light Blue","Female","M",250000],
+  ["25ASW-266-N114","Light Blue","Female","XL",250000],
+  ["ASW0101-R10-B081","White","Female","S",250000],
+  ["23ASW-216-B011","White","Female","S",260000],
+  ["23ASW-216-B012","White","Female","M",260000],
+  ["23ASW-216-B014","White","Female","XL",260000],
+  ["23ASW-216-K011","Cream","Female","S",260000],
+  ["23ASW-216-K012","Cream","Female","M",260000],
+  ["23ASW-216-K013","Cream","Female","L",260000],
+  ["23ASW-216-K014","Cream","Female","XL",260000],
+  ["23ASW-216-K015","Cream","Female","XXL",260000],
+  ["23ASW-216-L091","Blue","Female","S",260000],
+  ["23ASW-216-L092","Blue","Female","M",260000],
+  ["23ASW-216-L093","Blue","Female","L",260000],
+  ["23ASW-216-L094","Blue","Female","XL",260000],
+  ["23ASW-216-L095","Blue","Female","XXL",260000],
+  ["23ASW-103-N081","Light Blue","Female","S",270000],
+  ["23ASW-103-N082","Light Blue","Female","M",270000],
+  ["23ASW-103-N083","Light Blue","Female","L",270000],
+  ["23ASW-103-N084","Light Blue","Female","XL",270000],
+  ["23ASW-103-N085","Light Blue","Female","XXL",270000],
+  ["23ASW-103-Y073","Yellow","Female","L",270000],
+  ["23ASW-103-Y074","Yellow","Female","XL",270000],
+  ["23ASW-103-Y075","Yellow","Female","XXL",270000],
+  ["25ASW-287-L061","Blue","Female","S",270000],
+  ["25ASW-287-L062","Blue","Female","M",270000],
+  ["25ASW-287-L063","Blue","Female","L",270000],
+  ["25ASW-287-L064","Blue","Female","XL",270000],
+  ["25ASW-287-L065","Blue","Female","XXL",270000],
+  ["23ASM-986-L061","Blue","Male","S",270000],
+  ["23ASM-986-L062","Blue","Male","M",270000],
+  ["23ASM-986-L063","Blue","Male","L",270000],
+  ["23ASM-986-W041","White","Male","S",270000],
+  ["23ASM-986-W042","White","Male","M",270000],
+  ["24ASW-251-L062","Blue","Female","M",280000],
+  ["24ASW-251-L063","Blue","Female","L",280000],
+  ["24ASW-251-L064","Blue","Female","XL",280000],
+  ["23ASM-987-L063","Blue","Male","L",270000],
+  ["23ASM-991-W042","White","Male","M",300000],
+  ["23ASM-991-W043","White","Male","L",300000],
+  ["23ASM-991-W044","White","Male","XL",300000],
+  ["23ASM-994-L061","Blue","Male","S",300000],
+  ["23ASM-994-L062","Blue","Male","M",300000],
+];
+
+// Initial stock counts
+const INIT_QTY={
+  "24ASW-251-L065":5,"24ASW-251-L064":5,"24ASW-251-L063":5,"24ASW-251-L062":5,
+  "24ASW-251-G105":3,"24ASW-251-G104":3,"24ASW-251-G103":3,"24ASW-251-G102":3,"24ASW-251-G101":3,
+  "24ASW-251-P115":5,"24ASW-251-P114":5,"24ASW-251-P113":5,"24ASW-251-P112":5,"24ASW-251-P111":5,
+  "24ASW-250-P125":3,"24ASW-250-P124":3,"24ASW-250-P123":3,"24ASW-250-P122":3,"24ASW-250-P121":3,
+  "24ASW-250-V115":5,"24ASW-250-V114":5,"24ASW-250-V113":5,"24ASW-250-V112":5,"24ASW-250-V111":5,
+  "ASW0101-R05-B085":5,"ASW0101-R05-B084":5,"ASW0101-R05-B083":5,"ASW0101-R05-B082":5,"ASW0101-R05-B081":5,
+  "ASW0101-R05-W015":5,"ASW0101-R05-W014":5,"ASW0101-R05-W013":5,"ASW0101-R05-W011":5,
+  "ASW0101-R10-B085":5,"ASW0101-R10-B084":5,"ASW0101-R10-B083":5,"ASW0101-R10-B082":5,"ASW0101-R10-B081":5,
+  "ASW0101-R10-W015":5,"ASW0101-R10-W014":5,"ASW0101-R10-W013":5,"ASW0101-R10-W012":5,"ASW0101-R10-W011":5,
+  "ASW0101-R01-P015":5,"ASW0101-R01-P014":5,"ASW0101-R01-P013":5,"ASW0101-R01-P012":5,"ASW0101-R01-P011":5,
+  "ASW0101-R01-B055":5,"ASW0101-R01-B054":5,"ASW0101-R01-B053":5,"ASW0101-R01-B052":5,"ASW0101-R01-B051":5,
+  "ASW0101-R01-B085":5,"ASW0101-R01-B084":5,"ASW0101-R01-B083":5,"ASW0101-R01-B082":5,"ASW0101-R01-B081":5,
+  "ASW0101-R01-W015":5,"ASW0101-R01-W014":5,"ASW0101-R01-W013":5,"ASW0101-R01-W012":5,"ASW0101-R01-W011":5,
+  "ASW0101-R09-K011":10,"ASW0101-R09-K012":5,"ASW0101-R09-K013":5,
+  "23ASW-102-L061":5,"23ASW-102-L062":5,"23ASW-102-L063":5,
+  "23ASW-102-Y071":5,"23ASW-102-Y072":5,"23ASW-102-Y073":5,
+  "24ASW-249-B011":5,"24ASW-249-B012":3,"24ASW-249-B014":2,
+  "24ASW-249-L071":4,"24ASW-249-L072":5,"24ASW-249-L074":2,
+  "24ASW-249-P121":5,"24ASW-249-P122":5,"24ASW-249-P123":3,"24ASW-249-P124":2,
+  "24ASW-249-V111":5,"24ASW-249-V112":5,"24ASW-249-V113":3,"24ASW-249-V114":2,
+  "25ASW-266-G071":5,"25ASW-266-G072":5,"25ASW-266-G073":3,"25ASW-266-G074":2,"25ASW-266-G075":2,
+  "25ASW-266-N111":5,"25ASW-266-N112":5,"25ASW-266-N114":5,
+  "23ASW-216-B011":10,"23ASW-216-B012":5,"23ASW-216-B014":2,
+  "23ASW-216-K011":5,"23ASW-216-K012":5,"23ASW-216-K013":3,"23ASW-216-K014":3,"23ASW-216-K015":2,
+  "23ASW-216-L091":10,"23ASW-216-L092":5,"23ASW-216-L093":2,"23ASW-216-L094":2,"23ASW-216-L095":2,
+  "23ASW-103-N081":5,"23ASW-103-N082":3,"23ASW-103-N083":3,"23ASW-103-N084":3,"23ASW-103-N085":3,
+  "23ASW-103-Y073":3,"23ASW-103-Y074":3,"23ASW-103-Y075":2,
+  "25ASW-287-L061":5,"25ASW-287-L062":5,"25ASW-287-L063":3,"25ASW-287-L064":3,"25ASW-287-L065":2,
+  "23ASM-986-L061":0,"23ASM-986-L062":3,"23ASM-986-L063":3,
+  "23ASM-986-W041":0,"23ASM-986-W042":2,
+  "24ASW-251-L062":5,"24ASW-251-L063":5,"24ASW-251-L064":2,
+  "23ASM-987-L063":3,
+  "23ASM-991-W042":2,"23ASM-991-W043":3,"23ASM-991-W044":3,
+  "23ASM-994-L061":0,"23ASM-994-L062":2,
+};
+
+// Build stock map
+let stock={};
+RAW.forEach(([sku,color,gender,size,sell])=>{
+  const base=INIT_QTY[sku]??5;
+  stock[sku]={sku,color,gender,size,sell,remaining:base};
+});
+
+let soldLog=[];
+let curSKU=null,curQty=1;
+let cr=null,scanning=false,lastCode='',lastTime=0;
+
+function fmt(n){return n.toLocaleString();}
+
+// ===== CAMERA =====
+async function toggleCam(){
+  if(scanning){stopCam();return;}
+  try{
+    if(typeof ZXing==='undefined'){toast('ກຳລັງໂຫຼດ...','err');return;}
+    cr=new ZXing.BrowserMultiFormatReader();
+    const devs=await cr.listVideoInputDevices();
+    const back=devs.find(d=>d.label.toLowerCase().includes('back')||d.label.toLowerCase().includes('rear')||d.label.toLowerCase().includes('environment'));
+    const id=(back||devs[devs.length-1]||devs[0])?.deviceId;
+    document.getElementById('cam-wrap').style.display='block';
+    document.getElementById('start-screen').style.display='none';
+    const btn=document.getElementById('cam-toggle');
+    btn.innerHTML='<i class="ti ti-camera-off"></i> ປິດ';
+    btn.classList.add('active');
+    scanning=true;
+    await cr.decodeFromVideoDevice(id||null,'vid',onScan);
+  }catch(e){
+    toast('ເປີດກ້ອງບໍ່ໄດ້','err');
+    stopCam();
+  }
+}
+
+function stopCam(){
+  if(cr){try{cr.reset();}catch(e){}}
+  cr=null;scanning=false;
+  document.getElementById('cam-wrap').style.display='none';
+  document.getElementById('start-screen').style.display='block';
+  const btn=document.getElementById('cam-toggle');
+  btn.innerHTML='<i class="ti ti-camera"></i> ກ້ອງ';
+  btn.classList.remove('active');
+  const v=document.getElementById('vid');
+  if(v&&v.srcObject){v.srcObject.getTracks().forEach(t=>t.stop());v.srcObject=null;}
+}
+
+function onScan(res){
+  if(!res)return;
+  const now=Date.now();
+  const code=res.getText().trim().toUpperCase();
+  if(code===lastCode&&now-lastTime<3000)return;
+  lastCode=code;lastTime=now;
+  beep();
+  showModal(code);
+}
+
+function lookupManual(){
+  const v=document.getElementById('sku-in').value.trim().toUpperCase();
+  if(!v){toast('ໃສ່ SKU ກ່ອນ','err');return;}
+  showModal(v);
+  document.getElementById('sku-in').value='';
+}
+
+// ===== MODAL =====
+function showModal(sku){
+  const item=stock[sku];
+  if(!item){toast('ບໍ່ພົບ: '+sku,'err');return;}
+  curSKU=sku; curQty=1;
+  const r=item.remaining;
+  document.getElementById('m-sku').textContent=sku;
+  document.getElementById('m-name').textContent=item.color+' — '+item.gender;
+  document.getElementById('m-meta').textContent='Size: '+item.size;
+  document.getElementById('m-price').textContent=fmt(item.sell);
+  document.getElementById('m-qty').textContent='1';
+  const sp=document.getElementById('m-stock');
+  if(r===0){sp.className='stock-pill out';sp.innerHTML='<i class="ti ti-alert-triangle"></i> ໝົດສະຕັອກ';}
+  else if(r<=3){sp.className='stock-pill low';sp.innerHTML='<i class="ti ti-alert-circle"></i> ໃກ້ໝົດ — ຄົງ '+r+' ອັນ';}
+  else{sp.className='stock-pill ok';sp.innerHTML='<i class="ti ti-package"></i> ຄົງ '+r+' ອັນ';}
+  document.getElementById('btn-ok').disabled=(r===0);
+  document.getElementById('modal').classList.add('show');
+}
+
+function adjQty(d){
+  if(!curSKU)return;
+  const max=stock[curSKU].remaining;
+  curQty=Math.max(1,Math.min(max,curQty+d));
+  document.getElementById('m-qty').textContent=curQty;
+}
+
+function cancelSale(){
+  document.getElementById('modal').classList.remove('show');
+  curSKU=null;curQty=1;
+  lastCode=''; // allow rescan same item
+}
+
+function confirmSale(){
+  if(!curSKU)return;
+  const item=stock[curSKU];
+  if(curQty>item.remaining){toast('ສະຕັອກບໍ່ພໍ!','err');return;}
+  item.remaining-=curQty;
+  const amt=item.sell*curQty;
+  soldLog.unshift({sku:curSKU,color:item.color,size:item.size,qty:curQty,amt,time:new Date().toLocaleTimeString('lo-LA',{hour:'2-digit',minute:'2-digit'})});
+  document.getElementById('modal').classList.remove('show');
+  beepOk();
+  toast('✓ ຂາຍ '+curSKU+' x'+curQty+' = '+fmt(amt)+' ກີບ','ok');
+  curSKU=null;curQty=1;lastCode='';
+  renderLog();
+}
+
+function renderLog(){
+  const lw=document.getElementById('log-wrap');
+  const tb=document.getElementById('total-bar');
+  if(!soldLog.length){lw.style.display='none';tb.style.display='none';return;}
+  lw.style.display='block';tb.style.display='flex';
+  let total=0;
+  document.getElementById('log-list').innerHTML=soldLog.map(s=>{
+    total+=s.amt;
+    return`<div class="log-item">
+      <div>
+        <div class="log-sku">${s.sku}</div>
+        <div class="log-detail">${s.color} · ${s.size} · x${s.qty} · ${s.time}</div>
+      </div>
+      <div class="log-amt">+${fmt(s.amt)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('total-val').textContent=fmt(total)+' ກີບ';
+}
+
+function clearLog(){soldLog=[];renderLog();}
+
+// ===== AUDIO =====
+function beep(){
+  try{const c=new(window.AudioContext||window.webkitAudioContext)();const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(0.3,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.12);o.start();o.stop(c.currentTime+0.12);}catch(e){}
+}
+function beepOk(){
+  try{const c=new(window.AudioContext||window.webkitAudioContext)();[660,880].forEach((f,i)=>{const o=c.createOscillator();const g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=f;g.gain.setValueAtTime(0.25,c.currentTime+i*0.1);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+i*0.1+0.15);o.start(c.currentTime+i*0.1);o.stop(c.currentTime+i*0.1+0.15);});}catch(e){}
+}
+
+// ===== TOAST =====
+function toast(msg,type){
+  const el=document.getElementById('toast');
+  el.textContent=msg;
+  el.className='toast '+(type==='ok'?'ok-t':'err-t');
+  el.style.display='block';
+  setTimeout(()=>el.style.display='none',2500);
+}
+
+// keyboard
+document.getElementById('sku-in').addEventListener('keydown',e=>{if(e.key==='Enter')lookupManual();});
+// close modal on bg click
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)cancelSale();});
+</script>
